@@ -8,8 +8,10 @@ import org.example.utils.DatabaseConnectionManager;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class ProductDaoImp implements ProductDao {
     private DatabaseConnectionManager databaseConnectionManager;
@@ -172,5 +174,28 @@ public class ProductDaoImp implements ProductDao {
     @Override
     public void restoreVersion() throws CustomException {
 
+    }
+
+    // Write Product
+    private void writeProduct(){
+        Scanner scan = new Scanner(System.in);
+        int productId=1;
+        System.out.print("Input product name: ");
+        String productName = scan.nextLine();
+
+        System.out.print("Input product price: ");
+        double unitPrice = scan.nextDouble();
+
+        System.out.print("Input quantity: ");
+        int quantity = scan.nextInt();
+
+        Date importDate = Date.valueOf(LocalDate.now());
+
+        Product product = new Product(productId,productName,unitPrice,quantity,importDate);
+        writeProduct(product);
+    }
+    // display Write Product
+    private void writeProduct(Product product){
+        System.out.println(product);
     }
 }
