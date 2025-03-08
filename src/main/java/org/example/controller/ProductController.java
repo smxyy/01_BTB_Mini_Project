@@ -11,6 +11,8 @@ import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -115,7 +117,7 @@ public class ProductController {
     }
 
     // Delete Product by ID
-    private void deleteProductById(int id) {
+    public void deleteProductById(int id) throws CustomException {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter product ID to delete: ");
         int searchId = scanner.nextInt();
@@ -131,6 +133,29 @@ public class ProductController {
                 System.out.println("Invalid input. Please enter 'y' or 'n'.");
             }
         }
+    }
+
+    // Write Product
+    public void writeProduct() throws CustomException {
+        Scanner scan = new Scanner(System.in);
+        int productId=1;
+        System.out.print("Input product name: ");
+        String productName = scan.nextLine();
+
+        System.out.print("Input product price: ");
+        double unitPrice = scan.nextDouble();
+
+        System.out.print("Input quantity: ");
+        int quantity = scan.nextInt();
+
+        Date importDate = Date.valueOf(LocalDate.now());
+
+        Product product = new Product(productId,productName,unitPrice,quantity,importDate);
+        writeProduct(product);
+    }
+
+    public void writeProduct(Product product){
+        System.out.println(product);
     }
 
     public void setRow() throws CustomException {
