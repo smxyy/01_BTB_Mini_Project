@@ -130,7 +130,38 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public int updateProductById(int id) throws CustomException {
-        return 0;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+
+            connection = databaseConnectionManager.getConnection();
+            String sql = "UPDATE products SET name = ?, unit_price = ?, quantity = ?, imported_date = ? WHERE id = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            Product product = searchProductById(id);
+
+            preparedStatement.setString(1, product.getName());
+            preparedStatement.setDouble(2, product.getUnitPrice());
+            preparedStatement.setInt(3,product.getQuantity());
+            preparedStatement.setDate(4, product.getImpotedDate());
+            preparedStatement.setInt(5, id);
+
+            return preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new CustomException("Error updating product: " + e.getMessage());
+        } finally {
+            // Close resources
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException sqlException) {
+                throw new CustomException("Error closing resources: " + sqlException.getMessage());
+            }
+        }
     }
 
     @Override
