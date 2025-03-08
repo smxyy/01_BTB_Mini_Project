@@ -7,14 +7,10 @@ import org.example.custom.exception.CustomException;
 import org.example.model.entity.ProductList;
 import org.example.utils.Helper;
 import org.example.model.entity.ProductTempList;
-import org.example.utils.Helper;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
 import org.nocrala.tools.texttablefmt.Table;
-
-import java.time.chrono.HijrahEra;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -47,11 +43,7 @@ public class View {
                         switch (option) {
                             case "n", "p", "f", "l", "g" -> currentPage = product.showPagination(option, productList);
                             case "w" -> {
-<<<<<<< HEAD
-
-=======
                                 tempList.writeProduct();
->>>>>>> cedd8e999f37cbaba50a0d2daba1cf3d41ef91ff
                             }
                             case "r" -> {
 
@@ -71,11 +63,7 @@ public class View {
                             case "sa" -> {
                             }
                             case "un" -> {
-<<<<<<< HEAD
-
-=======
                                 product.unsavedController();
->>>>>>> cedd8e999f37cbaba50a0d2daba1cf3d41ef91ff
                             }
                             case "ba" -> {
                                 System.out.println("\n" + "=".repeat(35));
@@ -171,9 +159,5 @@ public class View {
         System.out.print(GREEN.getCode() + "E)" + RESET.getCode() + " Exit\n");
         System.out.println(" ".repeat(25) + "_".repeat(57));
     }
-<<<<<<< HEAD
-}
-=======
 
 }
->>>>>>> cedd8e999f37cbaba50a0d2daba1cf3d41ef91ff
