@@ -2,6 +2,7 @@ package org.example.view;
 
 import org.example.controller.ProductController;
 import org.example.custom.exception.CustomException;
+import org.example.model.entity.ProductList;
 
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -17,9 +18,9 @@ public class View {
         Scanner scanner = new Scanner(System.in);
         ProductController product = new ProductController();
 
-
+        int currentPage = 1;
         while(true) {
-            product.listProducts();
+            ProductList productList = product.listProducts(currentPage);
             this.showMenu();
 
             boolean isOption = false;
@@ -30,16 +31,7 @@ public class View {
                 if (!option.isBlank()) {
                     if(Pattern.matches("^[a-zA-Z]+$", option)) {
                         switch (option) {
-                            case "n" -> {
-                            }
-                            case "p" -> {
-                            }
-                            case "f" -> {
-                            }
-                            case "l" -> {
-                            }
-                            case "g" -> {
-                            }
+                            case "n", "p", "f", "l", "g" -> currentPage = product.showPagination(option, productList);
                             case "w" -> {
                             }
                             case "r" -> {

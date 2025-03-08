@@ -9,10 +9,15 @@ import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
 import org.nocrala.tools.texttablefmt.Table;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.Scanner;
+
 import static org.example.config.Color.*;
 
 public class ProductController {
-    public void listProducts() throws CustomException {
+    public ProductList listProducts(int currentPage) throws CustomException {
         CellStyle alignCenter = new CellStyle(CellStyle.HorizontalAlign.CENTER);
         Table tbList = new Table(5, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
         tbList.setColumnWidth(0, 10, 40);
@@ -21,7 +26,6 @@ public class ProductController {
         tbList.setColumnWidth(3, 15, 40);
         tbList.setColumnWidth(4, 20, 40);
 
-
         tbList.addCell(CYAN.getCode() + "ID" + RESET.getCode(), alignCenter);
         tbList.addCell(CYAN.getCode() + "Name" + RESET.getCode(), alignCenter);
         tbList.addCell(CYAN.getCode() + "Unit Price" + RESET.getCode(), alignCenter);
@@ -29,7 +33,7 @@ public class ProductController {
         tbList.addCell(CYAN.getCode() + "Import Date" + RESET.getCode(), alignCenter);
 
         ProductDaoImp productDao = new ProductDaoImp();
-        ProductList products = productDao.queryAllProducts(1);
+        ProductList products = productDao.queryAllProducts(currentPage);
 
         if (!products.getResult().isEmpty()) {
             for (Product product : products.getResult()) {
@@ -52,5 +56,60 @@ public class ProductController {
 
         System.out.println("\n");
         System.out.println(tbList.render());
+
+        return products;
+    }
+
+    public int showPagination(String option, ProductList productList) {
+        int pages = productList.getPage();
+
+        int perPage;
+
+        try (FileInputStream file = new FileInputStream("src/main/resources/config.properties")) {
+            Properties properties = new Properties();
+            properties.load(file);
+            try {
+                perPage = Integer.parseInt(properties.getProperty("page.show"));
+            } catch (NumberFormatException e) {
+                perPage = 5;
+            }
+        } catch (IOException ioException) {
+            perPage = 5;
+        }
+
+        switch(option) {
+            case "n" -> {
+                if (productList.getTotal() - (perPage * pages) >= 1)
+                    pages += 1;
+            }
+            case "p" -> {
+                if (pages > 1)
+                    pages -= 1;
+            }
+            case "f" -> pages = 1;
+            case "l" -> {
+                if (productList.getTotal() % perPage > 0)
+                    pages = productList.getTotal() / perPage + 1;
+                else
+                    pages = productList.getTotal() / perPage;
+            }
+            case "g" -> {
+                while(true) {
+                    try {
+                        System.out.print(YELLOW.getCode() + "=> Go to page: " + RESET.getCode());
+                        int gotoPage = Integer.parseInt(new Scanner(System.in).nextLine());
+                        if(gotoPage <= productList.getTotalPage()) {
+                            pages = gotoPage;
+                            break;
+                        } else {
+                            System.out.println(RED.getCode() + "Page " + gotoPage + " doesn't have!" + RESET.getCode());
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println(RED.getCode() + "Page is allowed only number!" + RESET.getCode());
+                    }
+                }
+            }
+        }
+        return pages;
     }
 }

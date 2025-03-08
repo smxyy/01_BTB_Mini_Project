@@ -5,8 +5,11 @@ import org.example.model.entity.Product;
 import org.example.model.entity.ProductList;
 import org.example.utils.DatabaseConnectionManager;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Properties;
 
 public class ProductDaoImp implements ProductDao {
     private DatabaseConnectionManager databaseConnectionManager;
@@ -18,7 +21,20 @@ public class ProductDaoImp implements ProductDao {
     @Override
     public ProductList queryAllProducts(int page) throws CustomException {
         ArrayList<Product> product = new ArrayList<>();
-        int totalRow = 0, perPage = 5;
+        int totalRow = 0, perPage;
+
+        try (FileInputStream file = new FileInputStream("src/main/resources/config.properties")) {
+            Properties properties = new Properties();
+            properties.load(file);
+            try {
+                perPage = Integer.parseInt(properties.getProperty("page.show"));
+            } catch (NumberFormatException e) {
+                perPage = 5;
+            }
+        } catch (IOException ioException) {
+            perPage = 5;
+        }
+
         try {
             Connection connection = databaseConnectionManager.getConnection();
 

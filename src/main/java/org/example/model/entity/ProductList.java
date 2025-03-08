@@ -14,7 +14,7 @@ public class ProductList {
         this.page = page;
         this.show = show;
         this.total = total;
-        this.totalPage = Math.max(total / show, 1);
+        this.totalPage = Math.max(total / show, 1) + (total % show > 0 ? 1 : 0);
     }
 
     public ArrayList<Product> getResult() {
