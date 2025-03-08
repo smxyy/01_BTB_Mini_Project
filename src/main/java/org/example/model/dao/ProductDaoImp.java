@@ -95,7 +95,6 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public int addNewProduct(Product product) throws CustomException {
-
         return 0;
     }
 
@@ -207,6 +206,7 @@ public class ProductDaoImp implements ProductDao {
     public void restoreVersion() throws CustomException {
 
     }
+
     // Delete Product by ID
     private void deleteProductById() {
         Scanner scanner = new Scanner(System.in);
@@ -235,7 +235,6 @@ public class ProductDaoImp implements ProductDao {
             }
         }
     }
-
 
     // Write Product
     private void writeProduct(){

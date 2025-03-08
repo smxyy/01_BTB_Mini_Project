@@ -97,6 +97,5 @@ public class Helper {
 
     public static void printMenu(){
         System.out.println(" ".repeat(15 ) + "_".repeat(8) + " Menu " + "_".repeat(8));
-
     }
 }

@@ -1,5 +1,7 @@
 package org.example.model.entity;
 
+import org.example.utils.Helper;
+
 import java.util.ArrayList;
 
 public class ProductList {
@@ -12,7 +14,7 @@ public class ProductList {
     public ProductList(ArrayList<Product> result, int page, int show, int total) {
         this.result = result;
         this.page = page;
-        this.show = Math.min(show, total);
+        this.show = Math.min(show, total) == 0 ? 1 : Math.min(show, total);
         this.total = total;
         this.totalPage = Math.max(total / this.show, 1) + (total % this.show > 0 ? 1 : 0);
     }
