@@ -4,6 +4,7 @@ import org.example.custom.exception.CustomException;
 import org.example.model.dao.ProductDaoImp;
 import org.example.model.entity.Product;
 import org.example.model.entity.ProductList;
+import org.example.model.entity.ProductTempList;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
@@ -11,8 +12,6 @@ import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -80,7 +79,7 @@ public class ProductController {
             perPage = 5;
         }
 
-        switch(option) {
+        switch (option) {
             case "n" -> {
                 if (productList.getTotal() - (perPage * pages) >= 1)
                     pages += 1;
@@ -97,11 +96,11 @@ public class ProductController {
                     pages = productList.getTotal() / perPage;
             }
             case "g" -> {
-                while(true) {
+                while (true) {
                     try {
                         System.out.print(YELLOW.getCode() + "=> Go to page: " + RESET.getCode());
                         int gotoPage = Integer.parseInt(new Scanner(System.in).nextLine());
-                        if(gotoPage <= productList.getTotalPage()) {
+                        if (gotoPage <= productList.getTotalPage()) {
                             pages = gotoPage;
                             break;
                         } else {
@@ -119,7 +118,7 @@ public class ProductController {
 
     public void setRow() throws CustomException {
         ProductDaoImp product = new ProductDaoImp();
-        while(true) {
+        while (true) {
             try {
                 System.out.print(YELLOW.getCode() + "=> Set row: " + RESET.getCode());
                 int perPage = Integer.parseInt(new Scanner(System.in).nextLine());
@@ -132,6 +131,20 @@ public class ProductController {
                 }
             } catch (NumberFormatException e) {
                 System.out.println(RED.getCode() + "Row is allowed only number!" + RESET.getCode());
+            }
+        }
+    }
+
+    public void unsavedController() throws CustomException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Enter ui for view unsaved insert and uu for enter unsaved updated :");
+            String ch = scanner.nextLine();
+            if (Pattern.matches("[a-zA-Z]+", ch)) {
+                ProductTempList productTempList = new ProductTempList();
+                if(productTempList.unsavedProduct(ch))break;
+            } else {
+                System.out.println("Only input letter");
             }
         }
     }
