@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import static org.example.config.Color.*;
 
@@ -111,5 +112,24 @@ public class ProductController {
             }
         }
         return pages;
+    }
+
+    // Delete Product by ID
+    private void deleteProductById(int id) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter product ID to delete: ");
+        int searchId = scanner.nextInt();
+        scanner.nextLine();
+        while (true) {
+            System.out.print("Do you want to delete this product? (y/n): ");
+            String choice = scanner.nextLine().trim();
+            if (Pattern.matches("[Yy]", choice)) {
+                break;
+            } else if (Pattern.matches("[Nn]", choice)) {
+                return;
+            } else {
+                System.out.println("Invalid input. Please enter 'y' or 'n'.");
+            }
+        }
     }
 }
