@@ -20,6 +20,12 @@ import java.util.regex.Pattern;
 import static org.example.config.Color.*;
 
 public class ProductController {
+    ProductTempList productTempList = new ProductTempList();
+    ProductDaoImp productDaoImp = new ProductDaoImp();
+
+    public ProductController() throws CustomException {
+    }
+
     public ProductList listProducts(int currentPage) throws CustomException {
         CellStyle alignCenter = new CellStyle(CellStyle.HorizontalAlign.CENTER);
         Table tbList = new Table(5, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
@@ -159,4 +165,29 @@ public class ProductController {
             }
         }
     }
+
+    public void writeController() throws CustomException {
+        productTempList.writeProduct();
+    }
+
+    public void updateProductTemp() throws CustomException {
+        productTempList.updateTempProductById();
+    }
+
+    public void readById() throws CustomException {
+        System.out.print("Enter id to read: ");
+        int id = Helper.validateChoice(1000000,"Enter id to read: ",false, false , "");
+        productDaoImp.searchProductById(id);
+    }
+
+    public void searchByNameController() throws CustomException {
+        productTempList.searchByName();
+    }
+
+    public void deleteByIdController() throws CustomException {
+        System.out.print("Enter product ID to delete: ");
+        int id = new Scanner(System.in).nextInt();
+        productDaoImp.deleteProductById(id);
+    }
+
 }

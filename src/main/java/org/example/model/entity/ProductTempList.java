@@ -29,6 +29,96 @@ public class ProductTempList {
         productDao.searchProductByName(name);
     }
 
+    private void showProductList(List<Product> productList) {
+        if (productList.isEmpty()) {
+            System.out.println("No products available.");
+            return;
+        }
+
+        CellStyle alignCenter = new CellStyle(CellStyle.HorizontalAlign.CENTER);
+        Table tbList = new Table(5, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
+        tbList.setColumnWidth(0, 10, 40);
+        tbList.setColumnWidth(1, 30, 70);
+        tbList.setColumnWidth(2, 15, 40);
+        tbList.setColumnWidth(3, 15, 40);
+        tbList.setColumnWidth(4, 20, 40);
+
+        tbList.addCell(CYAN.getCode() + "ID" + RESET.getCode(), alignCenter);
+        tbList.addCell(CYAN.getCode() + "Name" + RESET.getCode(), alignCenter);
+        tbList.addCell(CYAN.getCode() + "Unit Price" + RESET.getCode(), alignCenter);
+        tbList.addCell(CYAN.getCode() + "Qty" + RESET.getCode(), alignCenter);
+        tbList.addCell(CYAN.getCode() + "Import Date" + RESET.getCode(), alignCenter);
+
+        for (Product product : productList) {
+            tbList.addCell(YELLOW.getCode() + product.getId() + RESET.getCode(), alignCenter);
+            tbList.addCell(BLUE.getCode() + product.getName() + RESET.getCode(), alignCenter);
+            tbList.addCell(YELLOW.getCode() + product.getUnitPrice() + RESET.getCode(), alignCenter);
+            tbList.addCell(YELLOW.getCode() + product.getQuantity() + RESET.getCode(), alignCenter);
+            tbList.addCell(PURPLE.getCode() + product.getImpotedDate() + RESET.getCode(), alignCenter);
+        }
+
+        System.out.println(tbList.render());
+    }
+
+    // Update Product
+    public void updateTempProductById() throws CustomException {
+        Scanner scanner = new  Scanner(System.in);
+        System.out.print("Input ID to update: ");
+        String id = scanner.nextLine();
+        int conertID = Integer.parseInt(id);
+
+        Product productToUpdate = updateProductList.stream()
+                .filter(p -> p.getId() == conertID)
+                .findFirst().orElse(null);
+
+        if (productToUpdate != null) {
+            showProductList(updateProductList);
+            System.out.println("1. Name 2. Unit Price 3. Qty 4. All Fields 5. Exit");
+            System.out.print("Choose an option to update: ");
+            String choice = scanner.next();
+            scanner.nextLine();
+
+            switch (choice) {
+                case "1":
+                    System.out.print("Enter new name: ");
+                    String newName = scanner.nextLine();
+                    productToUpdate.setName(newName);
+                    break;
+                case "2":
+                    System.out.print("Enter new unit price: ");
+                    double newPrice = scanner.nextInt();
+                    productToUpdate.setUnitPrice(newPrice);
+                    break;
+                case "3":
+                    System.out.print("Enter new Qty: ");
+                    int newQty = scanner.nextInt();
+                    productToUpdate.setQuantity(newQty);
+                    break;
+                case "4":
+                    System.out.print("Enter new name: ");
+                    newName = scanner.nextLine();
+                    productToUpdate.setName(newName);
+
+                    System.out.print("Enter new unit price: ");
+                    newPrice = scanner.nextDouble();
+                    productToUpdate.setUnitPrice(newPrice);
+
+                    System.out.print("Enter new Qty: ");
+                    newQty = scanner.nextInt();
+                    productToUpdate.setQuantity(newQty);
+                    break;
+                case "5":
+                    System.out.println("Exiting update menu.");
+                    break;
+                default:
+                    System.out.println("Invalid option.");
+                    break;
+            }
+        } else {
+            System.out.println("Product with ID " + id + " not found.");
+        }
+    }
+
     // Delete Product by ID
     public void deleteProductById() throws CustomException {
         ProductDaoImp productDao = new ProductDaoImp();

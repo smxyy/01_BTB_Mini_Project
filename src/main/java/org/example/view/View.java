@@ -43,18 +43,19 @@ public class View {
                         switch (option) {
                             case "n", "p", "f", "l", "g" -> currentPage = product.showPagination(option, productList);
                             case "w" -> {
-                                tempList.writeProduct();
+                                product.writeController();
                             }
                             case "r" -> {
-
+                                product.readById();
                             }
                             case "u" -> {
+                                product.updateProductTemp();
                             }
                             case "d" -> {
-                                tempList.deleteProductById();
+                                product.deleteByIdController();
                             }
                             case "s" -> {
-                                tempList.searchByName();
+                                product.searchByNameController();
                             }
                             case "se" -> {
                                 product.setRow();
@@ -155,7 +156,7 @@ public class View {
         System.out.print(GREEN.getCode() + "Sa)" + RESET.getCode() + " Saved\t\t");
         System.out.print(GREEN.getCode() + "Un)" + RESET.getCode() + " Unsaved\t\t\t");
         System.out.print(GREEN.getCode() + "Ba)" + RESET.getCode() + " Back up\t\t");
-        System.out.print(GREEN.getCode() + "Re)" + RESET.getCode() + " Resort\t\t");
+        System.out.print(GREEN.getCode() + "Re)" + RESET.getCode() + " Restore\t\t");
         System.out.print(GREEN.getCode() + "E)" + RESET.getCode() + " Exit\n");
         System.out.println(" ".repeat(25) + "_".repeat(57));
     }
