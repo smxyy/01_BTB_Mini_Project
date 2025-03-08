@@ -5,9 +5,14 @@ import org.example.model.entity.Product;
 import org.example.model.entity.ProductList;
 import org.example.utils.DatabaseConnectionManager;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -25,13 +30,67 @@ public class ProductDaoImp implements ProductDao {
     }
 
     @Override
-    public List<Product> queryAllProducts() throws CustomException {
-        return List.of();
-    }
-
-    @Override
     public ProductList queryAllProducts(int page) throws CustomException {
-        return null;
+        ArrayList<Product> product = new ArrayList<>();
+        int totalRow = 0, perPage;
+        Properties properties = new Properties();
+        String propertiesPath = "src/main/resources/config.properties";
+        try (FileInputStream file = new FileInputStream(propertiesPath)) {
+            properties.load(file);
+            try {
+                perPage = Integer.parseInt(properties.getProperty("page.show"));
+            } catch (NumberFormatException e) {
+                perPage = 5;
+            }
+        } catch (IOException ioException) {
+            perPage = 5;
+        }
+
+        Connection connection = null;
+        try {
+            connection = databaseConnectionManager.getConnection();
+
+            String query = "SELECT * FROM stock_tb ORDER BY id LIMIT ? OFFSET ?";
+            ResultSet data = null;
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setInt(1, perPage);
+                statement.setInt(2, (page-1)*perPage);
+
+                data = statement.executeQuery();
+                // Process the result set
+                while (data.next()) {
+                    int id = data.getInt(1);
+                    String name = data.getString(2);
+                    double price = data.getDouble(3);
+                    int qty = data.getInt(4);
+                    Date date = data.getDate(5);
+
+                    product.add(new Product(id, name, price, qty, date));
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (data != null) data.close();
+            }
+
+            String total = "SELECT COUNT(id) AS total FROM stock_tb";
+            try (PreparedStatement countStatement = connection.prepareStatement(total);
+                 ResultSet rows = countStatement.executeQuery()) {
+                if (rows.next()) {
+                    totalRow = rows.getInt("total");
+                }
+            }
+        } catch (SQLException e) {
+            throw new CustomException("Error: " + e.getMessage());
+        } finally {
+            try {
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                throw new CustomException("Error connection: " + e.getMessage());
+            }
+        }
+
+        return new ProductList(product, page, perPage, totalRow);
     }
 
     @Override
@@ -110,12 +169,25 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public void setRow(int number) {
+        Properties properties = new Properties();
+        String propertiesPath = "src/main/resources/config.properties";
+        try (FileInputStream input = new FileInputStream(propertiesPath)) {
+            properties.load(input);
+            properties.setProperty("page.show", number+"");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        // Save the updated properties back to the file
+        try (FileOutputStream output = new FileOutputStream(propertiesPath)) {
+            properties.store(output, "Updated properties file");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void saveProductToDatabase() throws CustomException {
-
 
     }
 
@@ -127,6 +199,34 @@ public class ProductDaoImp implements ProductDao {
     @Override
     public void restoreVersion() throws CustomException {
 
+    }
+    // Delete Product by ID
+    private void deleteProductById() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter product ID to delete: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        while (true) {
+            System.out.print("Do you want to delete this product? (y/n): ");
+            String choice = scanner.nextLine().trim();
+            if (Pattern.matches("[Yy]", choice)) {
+                try {
+                    int result = deleteProductById(id);
+                    if (result > 0) {
+                        System.out.println("Deleted product successfully.");
+                    } else {
+                        System.out.println("Delete failed or product not found.");
+                    }
+                } catch (CustomException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+                break;
+            } else if (Pattern.matches("[Nn]", choice)) {
+                return;
+            } else {
+                System.out.println("Invalid input. Please enter 'y' or 'n'.");
+            }
+        }
     }
 
     // Search Product By ID
