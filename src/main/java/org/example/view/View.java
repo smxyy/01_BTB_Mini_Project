@@ -1,10 +1,20 @@
 package org.example.view;
 
+import org.example.config.Color;
+import org.example.controller.BackupRestoreController;
 import org.example.controller.ProductController;
 import org.example.custom.exception.CustomException;
 import org.example.model.entity.ProductList;
 import org.example.model.entity.ProductTempList;
+import org.example.utils.Helper;
+import org.nocrala.tools.texttablefmt.BorderStyle;
+import org.nocrala.tools.texttablefmt.CellStyle;
+import org.nocrala.tools.texttablefmt.ShownBorders;
+import org.nocrala.tools.texttablefmt.Table;
 
+import java.time.chrono.HijrahEra;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -18,6 +28,7 @@ public class View {
     void init () throws CustomException {
         Scanner scanner = new Scanner(System.in);
         ProductController product = new ProductController();
+        BackupRestoreController backupRestoreController = new BackupRestoreController();
         ProductTempList tempList = new ProductTempList();
 
         int currentPage = 1;
@@ -35,8 +46,10 @@ public class View {
                         switch (option) {
                             case "n", "p", "f", "l", "g" -> currentPage = product.showPagination(option, productList);
                             case "w" -> {
+
                             }
                             case "r" -> {
+
                             }
                             case "u" -> {
                             }
@@ -52,13 +65,62 @@ public class View {
                             case "sa" -> {
                             }
                             case "un" -> {
+
                             }
                             case "ba" -> {
+                                System.out.println("\n" + "=".repeat(35));
+                                char answer = Helper.inputChar("Are you sure you want to backup the data (y/n)? : ");
+                                if (answer == 'y'){
+                                    int result = backupRestoreController.handleBackup();
+                                    if (result == 0)
+                                        Helper.printMessage("Database backup successfully!", 1);
+                                    else
+                                        Helper.printMessage("Fail to backup data from database!", 0);
+                                    Helper.printMessage("Enter to continue...", 2);
+                                    scanner.nextLine();
+                                }
+                                else if (answer == 'n') {
+                                    break;
+                                }
+                                else {
+                                    Helper.printMessage("Invalid Input", 2);
+                                }
                             }
                             case "re" -> {
+                                // Load existing backup files from the properties file
+                                backupRestoreController.loadBackupFilesController();
+                                CellStyle cellStyle = new CellStyle(CellStyle.HorizontalAlign.LEFT);
+                                Table table = new Table(2, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.SURROUND_HEADER_AND_COLUMNS);
+
+                                // Table column's width
+                                table.setColumnWidth(0, 5, 8);
+
+                                // Table header
+                                table.addCell("List of Backup Data", new CellStyle(CellStyle.HorizontalAlign.CENTER), 2);
+
+                                // Table body
+                                Map<Integer, String> backupFiles = backupRestoreController.getBackupFilesController();
+                                for (Map.Entry<Integer, String> entry : backupFiles.entrySet()) {
+                                    table.addCell(String.valueOf(entry.getKey()), cellStyle);
+                                    table.addCell(entry.getValue(), cellStyle);
+                                }
+                                System.out.println(table.render());
+                                int choice = Helper.validateChoice(backupFiles.size(), "=> Enter backup_id to restore: ", false, true,
+                                        "The backup version that you input, doesn't exist!");
+                                for (Map.Entry<Integer, String> entry : backupFiles.entrySet()) {
+                                    if (choice == entry.getKey()){
+                                        int result = backupRestoreController.handleRestore(entry.getValue());
+                                        if (result == 0){
+                                            Helper.printMessage("Database restore successfully!", 1);
+                                        } else {
+                                            Helper.printMessage("Fail to restore data from file to database!", 0);
+                                        }
+                                    }
+                                }
                             }
                             case "e" -> {
-                                return;
+                                Helper.printMessage("I wish you all the best!", 99);
+                                System.exit(0);
                             }
                             default -> {
                                 System.out.println(RED.getCode() + "This option doesn't have!" + RESET.getCode());
@@ -80,11 +142,11 @@ public class View {
     public void showMenu() {
         System.out.println(" ".repeat(25) + "_".repeat(25) + " Menu " + "_".repeat(25));
 
-        System.out.print(GREEN.getCode() + "\t\tN." + RESET.getCode()+ " Next Page\t\t");
-        System.out.print(GREEN.getCode() + "P." + RESET.getCode()+ " Previous Page\t\t");
-        System.out.print(GREEN.getCode() + "F." + RESET.getCode()+ " First Page\t\t");
-        System.out.print(GREEN.getCode() + "L." + RESET.getCode()+ " Last Page\t\t");
-        System.out.print(GREEN.getCode() + "G." + RESET.getCode()+ " Goto\n\n");
+        System.out.print(GREEN.getCode() + "\t\tN." + RESET.getCode() + " Next Page\t\t");
+        System.out.print(GREEN.getCode() + "P." + RESET.getCode() + " Previous Page\t\t");
+        System.out.print(GREEN.getCode() + "F." + RESET.getCode() + " First Page\t\t");
+        System.out.print(GREEN.getCode() + "L." + RESET.getCode() + " Last Page\t\t");
+        System.out.print(GREEN.getCode() + "G." + RESET.getCode() + " Goto\n\n");
 
         System.out.print(GREEN.getCode() + "W)" + RESET.getCode() + " Write\t\t");
         System.out.print(GREEN.getCode() + "R)" + RESET.getCode() + " Read (id)\t\t");

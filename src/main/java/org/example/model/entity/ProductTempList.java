@@ -51,4 +51,5 @@ public class ProductTempList {
         Product product = new Product(productId,productName,unitPrice,quantity,importDate);
         writeProductList.add(product);
     }
+
 }
