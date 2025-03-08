@@ -208,7 +208,21 @@ public class ProductController {
     }
 
     public void updateProductTemp() throws CustomException {
-//        productTempList.updateTempProductById();
+        while (true) {
+            System.out.print("Enter product id: ");
+            String sid = new Scanner(System.in).nextLine();
+            if (!sid.isBlank()) {
+                try {
+                    int id = Integer.parseInt(sid);
+                    productTempList.updateProductById(id);
+                    break;
+                } catch (NumberFormatException e) {
+                    Helper.printMessage("ID is allowed only number!", 0);
+                }
+            } else {
+                Helper.printMessage("ID not allowed empty!", 0);
+            }
+        }
     }
 
     public void readById() throws CustomException {

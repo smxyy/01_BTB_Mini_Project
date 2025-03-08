@@ -128,6 +128,220 @@ public class ProductTempList {
         Helper.printMessage("Product added successfully!", 1);
     }
 
+    public void updateProductById(int id) throws CustomException {
+        ProductDaoImp productDao = new ProductDaoImp();
+        Product product = productDao.getProductById(id);
+        Scanner scanner = new Scanner(System.in);
+
+        CellStyle alignCenter = new CellStyle(CellStyle.HorizontalAlign.CENTER);
+        Table tbProduct = new Table(5, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
+        tbProduct.setColumnWidth(0, 10, 40);
+        tbProduct.setColumnWidth(1, 30, 70);
+        tbProduct.setColumnWidth(2, 15, 40);
+        tbProduct.setColumnWidth(3, 15, 40);
+        tbProduct.setColumnWidth(4, 20, 40);
+
+        tbProduct.addCell(CYAN.getCode() + "ID" + RESET.getCode(), alignCenter);
+        tbProduct.addCell(CYAN.getCode() + "Name" + RESET.getCode(), alignCenter);
+        tbProduct.addCell(CYAN.getCode() + "Unit Price" + RESET.getCode(), alignCenter);
+        tbProduct.addCell(CYAN.getCode() + "Qty" + RESET.getCode(), alignCenter);
+        tbProduct.addCell(CYAN.getCode() + "Import Date" + RESET.getCode(), alignCenter);
+        if (product.getId() != 0) {
+            tbProduct.addCell(GREEN.getCode() + product.getId() + RESET.getCode(), alignCenter);
+            tbProduct.addCell(BLUE.getCode() + product.getName() + RESET.getCode(), alignCenter);
+            tbProduct.addCell(YELLOW.getCode() + product.getUnitPrice() + RESET.getCode(), alignCenter);
+            tbProduct.addCell(YELLOW.getCode() + product.getQuantity() + RESET.getCode(), alignCenter);
+            tbProduct.addCell(PURPLE.getCode() + product.getImpotedDate() + RESET.getCode(), alignCenter);
+            System.out.println(tbProduct.render());
+
+            boolean isOption = true;
+            while(isOption) {
+                System.out.println("1. Name\t 2. Unit Price\t 3. Qty\t 4. All Field\t 5. Exit");
+                System.out.print("Enter your option: ");
+                String option = scanner.nextLine();
+                if (!option.isBlank()) {
+                    if (Pattern.matches("^[0-9]+$", option)) {
+                        switch (Integer.parseInt(option)) {
+                            case 1 -> {
+                                String productName = "";
+                                while(true) {
+                                    System.out.print("Input product name: ");
+                                    productName = scanner.nextLine();
+
+                                    if (!productName.isBlank()) {
+                                        if (Pattern.matches("^[a-zA-Z ]+$", productName)) {
+                                            break;
+                                        } else {
+                                            Helper.printMessage("Product name is allowed only letter!", 0);
+                                        }
+                                    } else {
+                                        Helper.printMessage("Product name not allowed empty!", 0);
+                                    }
+                                }
+
+                                if (!updateProductList.isEmpty()) {
+                                    int i = 0;
+                                    for (Product item : updateProductList) {
+                                        if (item.getId() == id) {
+                                            updateProductList.remove(i);
+                                            break;
+                                        }
+                                        i++;
+                                    }
+                                }
+                                updateProductList.add(new Product(id, productName, product.getUnitPrice(), product.getQuantity(), product.getImpotedDate()));
+
+                                Helper.printMessage("Updated successfully!\n",  1);
+                            }
+                            case 2 -> {
+                                double unitPrice = 0;
+                                while(true) {
+                                    System.out.print("Input product price: ");
+                                    String price = scanner.nextLine();
+
+                                    if (!price.isBlank()) {
+                                        if (Pattern.matches("^[0-9]+$", price) || Pattern.matches("^([0-9]+).([0-9])+$", price)) {
+                                            unitPrice = Double.parseDouble(price);
+                                            break;
+                                        } else {
+                                            Helper.printMessage("Product price is allowed only number!", 0);
+                                        }
+                                    } else {
+                                        Helper.printMessage("Product price not allowed empty!", 0);
+                                    }
+                                }
+
+                                if (!updateProductList.isEmpty()) {
+                                    int i = 0;
+                                    for (Product item : updateProductList) {
+                                        if (item.getId() == id) {
+                                            updateProductList.remove(i);
+                                            break;
+                                        }
+                                        i++;
+                                    }
+                                }
+                                updateProductList.add(new Product(id, product.getName(), unitPrice, product.getQuantity(), product.getImpotedDate()));
+
+                                Helper.printMessage("Updated successfully!\n",  1);
+                            }
+                            case 3 -> {
+                                int quantity = 0;
+                                while(true) {
+                                    System.out.print("Input quantity: ");
+                                    String qty = scanner.nextLine();
+
+                                    if (!qty.isBlank()) {
+                                        if (Pattern.matches("^[0-9]+$", qty)) {
+                                            quantity = Integer.parseInt(qty);
+                                            break;
+                                        } else {
+                                            Helper.printMessage("Product quantity is allowed only number!", 0);
+                                        }
+                                    } else {
+                                        Helper.printMessage("Product quantity not allowed empty!", 0);
+                                    }
+                                }
+
+                                if (!updateProductList.isEmpty()) {
+                                    int i = 0;
+                                    for (Product item : updateProductList) {
+                                        if (item.getId() == id) {
+                                            updateProductList.remove(i);
+                                            break;
+                                        }
+                                        i++;
+                                    }
+                                }
+                                updateProductList.add(new Product(id, product.getName(), product.getUnitPrice(), quantity, product.getImpotedDate()));
+
+                                Helper.printMessage("Updated successfully!\n",  1);
+                            }
+                            case 4 -> {
+                                String productName = "";
+                                double unitPrice = 0;
+                                int quantity = 0;
+                                while(true) {
+                                    System.out.print("Input product name: ");
+                                    productName = scanner.nextLine();
+
+                                    if (!productName.isBlank()) {
+                                        if (Pattern.matches("^[a-zA-Z ]+$", productName)) {
+                                            break;
+                                        } else {
+                                            Helper.printMessage("Product name is allowed only letter!", 0);
+                                        }
+                                    } else {
+                                        Helper.printMessage("Product name not allowed empty!", 0);
+                                    }
+                                }
+
+                                while(true) {
+                                    System.out.print("Input product price: ");
+                                    String price = scanner.nextLine();
+
+                                    if (!price.isBlank()) {
+                                        if (Pattern.matches("^[0-9]+$", price) || Pattern.matches("^([0-9]+).([0-9])+$", price)) {
+                                            unitPrice = Double.parseDouble(price);
+                                            break;
+                                        } else {
+                                            Helper.printMessage("Product price is allowed only number!", 0);
+                                        }
+                                    } else {
+                                        Helper.printMessage("Product price not allowed empty!", 0);
+                                    }
+                                }
+
+                                while(true) {
+                                    System.out.print("Input quantity: ");
+                                    String qty = scanner.nextLine();
+
+                                    if (!qty.isBlank()) {
+                                        if (Pattern.matches("^[0-9]+$", qty)) {
+                                            quantity = Integer.parseInt(qty);
+                                            break;
+                                        } else {
+                                            Helper.printMessage("Product quantity is allowed only number!", 0);
+                                        }
+                                    } else {
+                                        Helper.printMessage("Product quantity not allowed empty!", 0);
+                                    }
+                                }
+
+                                if (!updateProductList.isEmpty()) {
+                                    int i = 0;
+                                    for (Product item : updateProductList) {
+                                        if (item.getId() == id) {
+                                            updateProductList.remove(i);
+                                            break;
+                                        }
+                                        i++;
+                                    }
+                                }
+                                updateProductList.add(new Product(id, productName, unitPrice, quantity, product.getImpotedDate()));
+
+                                Helper.printMessage("Updated successfully!\n",  1);
+                            }
+                            case 5 -> isOption = false;
+                            default -> Helper.printMessage("This option doesn't have!", 0);
+                        }
+                    } else {
+                        Helper.printMessage("Option is allowed only number!", 0);
+                    }
+                } else {
+                    Helper.printMessage("Option not allowed empty!", 0);
+                }
+            }
+        } else {
+            for (int i = 0; i < 5; i++) {
+                tbProduct.addCell("---", alignCenter);
+            }
+            System.out.println(tbProduct.render());
+            System.out.print(YELLOW.getCode() + "Press ENTER to continue..." + RESET.getCode());
+            scanner.nextLine();
+        }
+    }
+
     public void saveProduct(String option) throws CustomException {
         ProductDaoImp productDao = new ProductDaoImp();
 

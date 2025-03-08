@@ -100,6 +100,42 @@ public class ProductDaoImp implements ProductDao {
         return 0;
     }
 
+    @Override
+    public Product getProductById(int searchId) throws CustomException {
+        String query = "SELECT * FROM stock_tb WHERE id = ? LIMIT 1";
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Product product = new Product();
+        try {
+            connection = databaseConnectionManager.getConnection();
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, searchId);
+            result = statement.executeQuery();
+            // Process the result set
+            while (result.next()) {
+                int id = result.getInt(1);
+                String name = result.getString(2);
+                double price = result.getDouble(3);
+                int qty = result.getInt(4);
+                Date date = result.getDate(5);
+
+                product = new Product(id, name, price, qty, date);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (connection != null) connection.close();
+                if (statement != null) statement.close();
+                if (result != null) result.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return product;
+    }
 
     @Override
     public Product searchProductById(int id) throws CustomException {
