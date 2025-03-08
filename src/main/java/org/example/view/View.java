@@ -52,6 +52,7 @@ public class View {
                                 currentPage = 1;
                             }
                             case "sa" -> {
+                                product.saveProduct();
                             }
                             case "un" -> {
                                 product.unsavedController();

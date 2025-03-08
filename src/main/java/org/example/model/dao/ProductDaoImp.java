@@ -4,23 +4,18 @@ import org.example.custom.exception.CustomException;
 import org.example.model.entity.Product;
 import org.example.model.entity.ProductList;
 import org.example.utils.DatabaseConnectionManager;
+import org.example.utils.Helper;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Pattern;
 
-import static org.example.config.Color.RED;
-import static org.example.config.Color.RESET;
-
-import static org.example.config.Color.RED;
-import static org.example.config.Color.RESET;
+import static org.example.config.Color.*;
 
 public class ProductDaoImp implements ProductDao {
     private DatabaseConnectionManager databaseConnectionManager;
@@ -224,8 +219,67 @@ public class ProductDaoImp implements ProductDao {
     }
 
     @Override
-    public void saveProductToDatabase() throws CustomException {
+    public void saveProductToDatabase(List<Product> product, String type) throws CustomException {
+        Connection connection = null;
+        try {
+            connection = databaseConnectionManager.getConnection();
+            connection.setAutoCommit(false);
 
+            if (Objects.equals(type, "insert")) {
+                for (Product pro : product) {
+                    String query = """
+                        INSERT INTO stock_tb (name, unit_price, stock_qty, import_date)
+                        VALUES (?, ?, ?, ?) RETURNING *;
+                    """;
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                        preparedStatement.setString(1, pro.getName());
+                        preparedStatement.setDouble(2, pro.getUnitPrice());
+                        preparedStatement.setInt(3, pro.getQuantity());
+                        preparedStatement.setDate(4, pro.getImpotedDate());
+                        ResultSet result = preparedStatement.executeQuery();
+                        Helper.printMessage("Insert successfully!", 1);
+                    } catch (SQLException e) {
+                        throw new CustomException("Error: " + e.getMessage());
+                    }
+                }
+                connection.commit();
+                System.out.print(YELLOW.getCode() + "Press ENTER to continue..." + RESET.getCode());
+                new Scanner(System.in).nextLine();
+            }
+
+            if (Objects.equals(type, "update")) {
+                for (Product pro : product) {
+                    String query = """
+                        UPDATE stock_tb
+                        SET name = ?, unit_price = ?, stock_qty = ?, import_date = ?
+                        WHERE id = ? RETURNING *;
+                    """;
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                        preparedStatement.setString(1, pro.getName());
+                        preparedStatement.setDouble(2, pro.getUnitPrice());
+                        preparedStatement.setInt(3, pro.getQuantity());
+                        preparedStatement.setDate(4, pro.getImpotedDate());
+                        preparedStatement.setInt(5, pro.getId());
+                        ResultSet result = preparedStatement.executeQuery();
+                        Helper.printMessage("Update successfully!", 1);
+                    } catch (SQLException e) {
+                        throw new CustomException("Error: " + e.getMessage());
+                    }
+                }
+                connection.commit();
+                System.out.print(YELLOW.getCode() + "Press ENTER to continue..." + RESET.getCode());
+                new Scanner(System.in).nextLine();
+            }
+
+        } catch (SQLException e) {
+            throw new CustomException("Error: " + e.getMessage());
+        } finally {
+            try {
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                throw new CustomException("Error connection: " + e.getMessage());
+            }
+        }
     }
 
     @Override

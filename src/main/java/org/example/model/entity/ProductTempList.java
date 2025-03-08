@@ -2,6 +2,7 @@ package org.example.model.entity;
 
 import org.example.custom.exception.CustomException;
 import org.example.model.dao.ProductDaoImp;
+import org.example.utils.Helper;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
@@ -19,6 +20,7 @@ import static org.example.config.Color.*;
 public class ProductTempList {
     static List<Product> writeProductList = new ArrayList<>();
     static List<Product> updateProductList=new ArrayList<>();
+    private int productId = 1;
 
     // Delete Product by ID
     public void deleteProductById() throws CustomException {
@@ -54,16 +56,56 @@ public class ProductTempList {
     // Write Product
     public void writeProduct() throws CustomException {
         Scanner scan = new Scanner(System.in);
-        int productId=10;
-        productId++;
-        System.out.print("Input product name: ");
-        String productName = scan.nextLine();
+        String productName = "";
+        double unitPrice = 0;
+        int quantity = 0;
 
-        System.out.print("Input product price: ");
-        double unitPrice = scan.nextDouble();
+        while(true) {
+            System.out.print("Input product name: ");
+            productName = scan.nextLine();
 
-        System.out.print("Input quantity: ");
-        int quantity = scan.nextInt();
+            if (!productName.isBlank()) {
+                if (Pattern.matches("^[a-zA-Z ]+$", productName)) {
+                    break;
+                } else {
+                    Helper.printMessage("Product name is allowed only letter!", 0);
+                }
+            } else {
+                Helper.printMessage("Product name not allowed empty!", 0);
+            }
+        }
+
+        while(true) {
+            System.out.print("Input product price: ");
+            String price = scan.nextLine();
+
+            if (!price.isBlank()) {
+                if (Pattern.matches("^[0-9]+$", price) || Pattern.matches("^([0-9]+).([0-9])+$", price)) {
+                    unitPrice = Double.parseDouble(price);
+                    break;
+                } else {
+                    Helper.printMessage("Product price is allowed only number!", 0);
+                }
+            } else {
+                Helper.printMessage("Product price not allowed empty!", 0);
+            }
+        }
+
+        while(true) {
+            System.out.print("Input quantity: ");
+            String qty = scan.nextLine();
+
+            if (!qty.isBlank()) {
+                if (Pattern.matches("^[0-9]+$", qty)) {
+                    quantity = Integer.parseInt(qty);
+                    break;
+                } else {
+                    Helper.printMessage("Product quantity is allowed only number!", 0);
+                }
+            } else {
+                Helper.printMessage("Product quantity not allowed empty!", 0);
+            }
+        }
 
         Date importDate = Date.valueOf(LocalDate.now());
 
@@ -73,12 +115,25 @@ public class ProductTempList {
         }
 
         writeProductList.add(product);
-        System.out.println("✅ Product added successfully!");
+        productId++;
+        Helper.printMessage("Product added successfully!", 1);
+    }
 
+    public List<Product> saveProduct(String option) {
+        List<Product> product = new ArrayList<>();
+        switch (option) {
+            case "ui" -> {
+                product = writeProductList;
+            }
+            case "uu" -> {
+                product = updateProductList;
+            }
+        }
+        return product;
     }
 
     public boolean unsavedProduct(String ch) {
-        switch (ch) {
+        switch (ch.toLowerCase()) {
             case "ui" -> {
                 CellStyle alignCenter = new CellStyle(CellStyle.HorizontalAlign.CENTER);
                 Table tbUnsaved = new Table(5, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
@@ -94,11 +149,11 @@ public class ProductTempList {
                 tbUnsaved.addCell(CYAN.getCode() + "Import Date" + RESET.getCode(), alignCenter);
                 if (!writeProductList.isEmpty()) {
                     writeProductList.forEach(ui -> {
-                        tbUnsaved.addCell(String.valueOf(ui.getId()));
-                        tbUnsaved.addCell(ui.getName());
-                        tbUnsaved.addCell(String.valueOf(ui.getUnitPrice()));
-                        tbUnsaved.addCell(String.valueOf(ui.getQuantity()));
-                        tbUnsaved.addCell(String.valueOf(ui.getImpotedDate()));
+                        tbUnsaved.addCell(GREEN.getCode() + ui.getId() + RESET.getCode(), alignCenter);
+                        tbUnsaved.addCell(BLUE.getCode() + ui.getName() + RESET.getCode(), alignCenter);
+                        tbUnsaved.addCell(YELLOW.getCode() + ui.getUnitPrice() + RESET.getCode(), alignCenter);
+                        tbUnsaved.addCell(YELLOW.getCode() + ui.getQuantity() + RESET.getCode(), alignCenter);
+                        tbUnsaved.addCell(PURPLE.getCode() + ui.getImpotedDate() + RESET.getCode(), alignCenter);
                     });
                 }
                 System.out.println(tbUnsaved.render());
@@ -120,19 +175,22 @@ public class ProductTempList {
                 tbUnSavedUpdate.addCell(CYAN.getCode() + "Import Date" + RESET.getCode(), alignCenter);
                 if (!updateProductList.isEmpty()) {
                     updateProductList.forEach(uu -> {
-                        tbUnSavedUpdate.addCell(String.valueOf(uu.getId()));
-                        tbUnSavedUpdate.addCell(uu.getName());
-                        tbUnSavedUpdate.addCell(String.valueOf(uu.getUnitPrice()));
-                        tbUnSavedUpdate.addCell(String.valueOf(uu.getQuantity()));
-                        tbUnSavedUpdate.addCell(String.valueOf(uu.getImpotedDate()));
+                        tbUnSavedUpdate.addCell(GREEN.getCode() + uu.getId() + RESET.getCode(), alignCenter);
+                        tbUnSavedUpdate.addCell(BLUE.getCode() + uu.getName() + RESET.getCode(), alignCenter);
+                        tbUnSavedUpdate.addCell(YELLOW.getCode() + uu.getUnitPrice() + RESET.getCode(), alignCenter);
+                        tbUnSavedUpdate.addCell(YELLOW.getCode() + uu.getQuantity() + RESET.getCode(), alignCenter);
+                        tbUnSavedUpdate.addCell(PURPLE.getCode() + uu.getImpotedDate() + RESET.getCode(), alignCenter);
                     });
                 }
                 System.out.println(tbUnSavedUpdate.render());
                 return true;
 
             }
+            case "b" -> {
+                return true;
+            }
             default -> {
-                System.out.println("Don't have this case");
+                Helper.printMessage("This option doesn't have!", 0);
                 return false;
             }
         }

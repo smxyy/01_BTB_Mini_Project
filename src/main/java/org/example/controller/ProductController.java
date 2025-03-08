@@ -4,11 +4,8 @@ import org.example.custom.exception.CustomException;
 import org.example.model.dao.ProductDaoImp;
 import org.example.model.entity.Product;
 import org.example.model.entity.ProductList;
-<<<<<<< HEAD
 import org.example.utils.Helper;
-=======
 import org.example.model.entity.ProductTempList;
->>>>>>> 04698fc9d39bf039de2db40661b0cdcc4c9bcce9
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
@@ -16,6 +13,7 @@ import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -103,7 +101,6 @@ public class ProductController {
                 while (true) {
                     try {
                         System.out.print(YELLOW.getCode() + "=> Go to page: " + RESET.getCode());
-<<<<<<< HEAD
                         String gotoPage = new Scanner(System.in).nextLine();
                         if (!gotoPage.isBlank()) {
                             int pageNum = Integer.parseInt(gotoPage);
@@ -113,12 +110,6 @@ public class ProductController {
                             } else {
                                 Helper.printMessage("Page " + pageNum + " doesn't have!", 0);
                             }
-=======
-                        int gotoPage = Integer.parseInt(new Scanner(System.in).nextLine());
-                        if (gotoPage <= productList.getTotalPage()) {
-                            pages = gotoPage;
-                            break;
->>>>>>> 04698fc9d39bf039de2db40661b0cdcc4c9bcce9
                         } else {
                             Helper.printMessage("Page not allowed empty!", 0);
                         }
@@ -156,16 +147,62 @@ public class ProductController {
         }
     }
 
+    public void saveProduct() throws CustomException {
+        Scanner scanner = new Scanner(System.in);
+        boolean isSave = true;
+        while (isSave) {
+            ProductTempList productTempList = new ProductTempList();
+            ProductDaoImp productDao = new ProductDaoImp();
+
+            System.out.println(GREEN.getCode() + "ui" + RESET.getCode() + " for insert product and " + GREEN.getCode() + "uu" + RESET.getCode() + " for update product or " + RED.getCode() + "b" + RESET.getCode() + " for back to menu");
+            System.out.print("Enter your option: ");
+            String option = scanner.nextLine();
+            if (!option.isBlank()) {
+                if(Pattern.matches("^[a-zA-Z]+$", option)) {
+                    switch (option) {
+                        case "ui" -> {
+                            List<Product> product = productTempList.saveProduct(option);
+                            if (!product.isEmpty()) {
+                                productDao.saveProductToDatabase(product, "insert");
+                            } else {
+                                Helper.printMessage("There is no product for insert!", 0);
+                            }
+                            isSave = false;
+                        }
+                        case "uu" -> {
+                            List<Product> product = productTempList.saveProduct(option);
+                            if (!product.isEmpty()) {
+                                productDao.saveProductToDatabase(product, "update");
+                            } else {
+                                Helper.printMessage("There is no product for update!", 0);
+                            }
+                            isSave = false;
+                        }
+                        case "b" -> {
+                            isSave = false;
+                        }
+                        default -> Helper.printMessage("This option doesn't have!", 0);
+                    }
+                } else {
+                    Helper.printMessage("Option is allowed only letter!", 0);
+                }
+            } else {
+                Helper.printMessage("Option not allowed empty!", 0);
+            }
+        }
+    }
+
     public void unsavedController() throws CustomException {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.print("Enter ui for view unsaved insert and uu for enter unsaved updated :");
+            System.out.println(GREEN.getCode() +  "ui" + RESET.getCode() + " for view unsaved insert and " + GREEN.getCode() +  "uu" + RESET.getCode() + " for view unsaved updated or "  + RED.getCode() + "b" + RESET.getCode() + " for back to menu");
+            System.out.print("Enter your option: ");
             String ch = scanner.nextLine();
             if (Pattern.matches("[a-zA-Z]+", ch)) {
                 ProductTempList productTempList = new ProductTempList();
                 if(productTempList.unsavedProduct(ch))break;
             } else {
-                System.out.println("Only input letter");
+                Helper.printMessage("Option is allowed only letter", 0);
             }
         }
     }
