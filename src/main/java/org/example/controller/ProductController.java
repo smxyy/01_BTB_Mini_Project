@@ -161,21 +161,11 @@ public class ProductController {
                 if(Pattern.matches("^[a-zA-Z]+$", option)) {
                     switch (option) {
                         case "ui" -> {
-                            List<Product> product = productTempList.saveProduct(option);
-                            if (!product.isEmpty()) {
-                                productDao.saveProductToDatabase(product, "insert");
-                            } else {
-                                Helper.printMessage("There is no product for insert!", 0);
-                            }
+                            productTempList.saveProduct(option);
                             isSave = false;
                         }
                         case "uu" -> {
-                            List<Product> product = productTempList.saveProduct(option);
-                            if (!product.isEmpty()) {
-                                productDao.saveProductToDatabase(product, "update");
-                            } else {
-                                Helper.printMessage("There is no product for update!", 0);
-                            }
+                            productTempList.saveProduct(option);
                             isSave = false;
                         }
                         case "b" -> {

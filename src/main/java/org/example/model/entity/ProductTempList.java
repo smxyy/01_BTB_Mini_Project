@@ -119,20 +119,31 @@ public class ProductTempList {
         Helper.printMessage("Product added successfully!", 1);
     }
 
-    public List<Product> saveProduct(String option) {
-        List<Product> product = new ArrayList<>();
+    public void saveProduct(String option) throws CustomException {
+        ProductDaoImp productDao = new ProductDaoImp();
+
         switch (option) {
             case "ui" -> {
-                product = writeProductList;
+                if (!writeProductList.isEmpty()) {
+                    productDao.saveProductToDatabase(writeProductList, "insert");
+                    writeProductList.clear();
+                } else {
+                    Helper.printMessage("There is no product for insert!", 0);
+                }
             }
             case "uu" -> {
-                product = updateProductList;
+                if (!updateProductList.isEmpty()) {
+                    productDao.saveProductToDatabase(updateProductList, "update");
+                    updateProductList.clear();
+                } else {
+                    Helper.printMessage("There is no product for update!", 0);
+                }
             }
         }
-        return product;
     }
 
     public boolean unsavedProduct(String ch) {
+        Scanner scanner = new Scanner(System.in);
         switch (ch.toLowerCase()) {
             case "ui" -> {
                 CellStyle alignCenter = new CellStyle(CellStyle.HorizontalAlign.CENTER);
@@ -157,6 +168,8 @@ public class ProductTempList {
                     });
                 }
                 System.out.println(tbUnsaved.render());
+                System.out.print(YELLOW.getCode() + "Press ENTER to continue..." + RESET.getCode());
+                new Scanner(System.in).nextLine();
                 return true;
             }
             case "uu"-> {
@@ -183,6 +196,8 @@ public class ProductTempList {
                     });
                 }
                 System.out.println(tbUnSavedUpdate.render());
+                System.out.print(YELLOW.getCode() + "Press ENTER to continue..." + RESET.getCode());
+                new Scanner(System.in).nextLine();
                 return true;
 
             }

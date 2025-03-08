@@ -20,6 +20,7 @@ public class Helper {
     public static int validateChoice(int choice, String label, boolean zero){
         boolean validatedChoice;
         int checkedChoice = 0;
+        int wrongInputCount = 0; // Track the number of wrong inputs
         do {
             System.out.print(label);
             String input = scanner.nextLine();
