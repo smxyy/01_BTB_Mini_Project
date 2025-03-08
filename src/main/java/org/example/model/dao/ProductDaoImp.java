@@ -12,6 +12,9 @@ import java.util.Scanner;
 import static org.example.config.Color.RED;
 import static org.example.config.Color.RESET;
 
+import static org.example.config.Color.RED;
+import static org.example.config.Color.RESET;
+
 public class ProductDaoImp implements ProductDao {
     private DatabaseConnectionManager databaseConnectionManager;
 
