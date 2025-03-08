@@ -35,7 +35,7 @@ public class View {
                         switch (option) {
                             case "n", "p", "f", "l", "g" -> currentPage = product.showPagination(option, productList);
                             case "w" -> {
-
+                                tempList.writeProduct();
                             }
                             case "r" -> {
                             }

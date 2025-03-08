@@ -171,10 +171,11 @@ public class ProductDaoImp implements ProductDao {
         PreparedStatement preparedStatement = null;
 
         try {
-
             connection = new DatabaseConnectionManager().getConnection();
-
-            String sql = "DELETE FROM products WHERE id = ?";
+            String sql = """         
+               DELETE FROM "stock_tb"
+               WHERE id = ?
+           """;
 
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, id);
