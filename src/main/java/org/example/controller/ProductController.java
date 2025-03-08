@@ -9,6 +9,8 @@ import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
 import org.nocrala.tools.texttablefmt.Table;
 
+import static org.example.config.Color.*;
+
 public class ProductController {
     public void listProducts() throws CustomException {
         CellStyle alignCenter = new CellStyle(CellStyle.HorizontalAlign.CENTER);
@@ -20,22 +22,22 @@ public class ProductController {
         tbList.setColumnWidth(4, 20, 40);
 
 
-        tbList.addCell("ID", alignCenter);
-        tbList.addCell("Name", alignCenter);
-        tbList.addCell("Unit Price", alignCenter);
-        tbList.addCell("Qty", alignCenter);
-        tbList.addCell("Import Date", alignCenter);
+        tbList.addCell(CYAN.getCode() + "ID" + RESET.getCode(), alignCenter);
+        tbList.addCell(CYAN.getCode() + "Name" + RESET.getCode(), alignCenter);
+        tbList.addCell(CYAN.getCode() + "Unit Price" + RESET.getCode(), alignCenter);
+        tbList.addCell(CYAN.getCode() + "Qty" + RESET.getCode(), alignCenter);
+        tbList.addCell(CYAN.getCode() + "Import Date" + RESET.getCode(), alignCenter);
 
         ProductDaoImp productDao = new ProductDaoImp();
         ProductList products = productDao.queryAllProducts(1);
 
         if (!products.getResult().isEmpty()) {
             for (Product product : products.getResult()) {
-                tbList.addCell(product.getId()+"", alignCenter);
-                tbList.addCell(product.getName(), alignCenter);
-                tbList.addCell(product.getUnitPrice()+"", alignCenter);
-                tbList.addCell(product.getQuantity()+"", alignCenter);
-                tbList.addCell(product.getImpotedDate()+"", alignCenter);
+                tbList.addCell(YELLOW.getCode() + product.getId() + RESET.getCode(), alignCenter);
+                tbList.addCell(BLUE.getCode() + product.getName() + RESET.getCode(), alignCenter);
+                tbList.addCell(YELLOW.getCode() + product.getUnitPrice() + RESET.getCode(), alignCenter);
+                tbList.addCell(YELLOW.getCode() + product.getQuantity() + RESET.getCode(), alignCenter);
+                tbList.addCell(PURPLE.getCode() + product.getImpotedDate() + RESET.getCode(), alignCenter);
             }
 
             int page = products.getPage();
