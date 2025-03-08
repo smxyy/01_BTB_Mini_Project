@@ -4,6 +4,7 @@ import org.example.custom.exception.CustomException;
 import org.example.model.dao.ProductDaoImp;
 import org.example.model.entity.Product;
 import org.example.model.entity.ProductList;
+import org.example.utils.Helper;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
@@ -100,15 +101,20 @@ public class ProductController {
                 while(true) {
                     try {
                         System.out.print(YELLOW.getCode() + "=> Go to page: " + RESET.getCode());
-                        int gotoPage = Integer.parseInt(new Scanner(System.in).nextLine());
-                        if(gotoPage <= productList.getTotalPage()) {
-                            pages = gotoPage;
-                            break;
+                        String gotoPage = new Scanner(System.in).nextLine();
+                        if (!gotoPage.isBlank()) {
+                            int pageNum = Integer.parseInt(gotoPage);
+                            if (pageNum <= productList.getTotalPage()) {
+                                pages = pageNum;
+                                break;
+                            } else {
+                                Helper.printMessage("Page " + pageNum + " doesn't have!", 0);
+                            }
                         } else {
-                            System.out.println(RED.getCode() + "Page " + gotoPage + " doesn't have!" + RESET.getCode());
+                            Helper.printMessage("Page not allowed empty!", 0);
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println(RED.getCode() + "Page is allowed only number!" + RESET.getCode());
+                        Helper.printMessage("Page is allowed only number!", 0);
                     }
                 }
             }
@@ -122,16 +128,21 @@ public class ProductController {
         while(true) {
             try {
                 System.out.print(YELLOW.getCode() + "=> Set row: " + RESET.getCode());
-                int perPage = Integer.parseInt(new Scanner(System.in).nextLine());
-                if (perPage <= 100 && perPage > 0) {
-                    product.setRow(perPage);
-                    System.out.println(GREEN.getCode() + "Row have been set successfully!" + RESET.getCode());
-                    break;
+                String showPage = new Scanner(System.in).nextLine();
+                if (!showPage.isBlank()) {
+                    int perPage = Integer.parseInt(showPage);
+                    if (perPage <= 100 && perPage > 0) {
+                        product.setRow(perPage);
+                        Helper.printMessage("Row have been set successfully!", 1);
+                        break;
+                    } else {
+                        Helper.printMessage("Row must be between 1 and 100!", 0);
+                    }
                 } else {
-                    System.out.println(RED.getCode() + "Row must be between 1 and 100!" + RESET.getCode());
+                    Helper.printMessage("Row not allowed empty!", 0);
                 }
             } catch (NumberFormatException e) {
-                System.out.println(RED.getCode() + "Row is allowed only number!" + RESET.getCode());
+                Helper.printMessage("Row is allowed only number!", 0);
             }
         }
     }
