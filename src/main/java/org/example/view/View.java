@@ -3,6 +3,7 @@ package org.example.view;
 import org.example.controller.ProductController;
 import org.example.custom.exception.CustomException;
 import org.example.model.entity.ProductList;
+import org.example.utils.Helper;
 
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -59,16 +60,16 @@ public class View {
                                 return;
                             }
                             default -> {
-                                System.out.println(RED.getCode() + "This option doesn't have!" + RESET.getCode());
+                                Helper.printMessage("This option doesn't have!", 0);
                                 isOption = true;
                             }
                         }
                     } else {
-                        System.out.println(RED.getCode() + "Option is allowed only letter!" + RESET.getCode());
+                        Helper.printMessage("Option is allowed only letter!", 0);
                         isOption = true;
                     }
                 } else {
-                    System.out.println(RED.getCode() + "Option not allowed empty!" + RESET.getCode());
+                    Helper.printMessage("Option not allowed empty!", 0);
                     isOption = true;
                 }
             } while (isOption);
