@@ -39,6 +39,7 @@ public class View {
                             case "u" -> {
                             }
                             case "d" -> {
+                                product.deleteProductById();
                             }
                             case "s" -> {
                             }

@@ -95,6 +95,7 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public int addNewProduct(Product product) throws CustomException {
+
         return 0;
     }
 
@@ -111,7 +112,6 @@ public class ProductDaoImp implements ProductDao {
             preparedStatement.setInt(1, id);
 
             ResultSet resultSet = preparedStatement.executeQuery();
-
             if(resultSet.next()){
                 int productId = resultSet.getInt("id");
                 String productName = resultSet.getString("name");
@@ -140,22 +140,16 @@ public class ProductDaoImp implements ProductDao {
         PreparedStatement preparedStatement = null;
 
         try {
-            // Get connection from DatabaseConnectionManager
+
             connection = new DatabaseConnectionManager().getConnection();
 
-            // SQL query to delete a product by its ID
             String sql = "DELETE FROM products WHERE id = ?";
 
-            // Prepare the statement
             preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, id);  // Set the id parameter
-
-            // Execute the update and return the number of rows affected
+            preparedStatement.setInt(1, id);
             int rowsAffected = preparedStatement.executeUpdate();
-
-            return rowsAffected; // Return the number of rows deleted
+            return rowsAffected;
         } catch (SQLException sqlException) {
-            // Handle SQL exceptions
             throw new CustomException("Error deleting product: " + sqlException.getMessage());
         } finally {
             // Close resources
@@ -205,57 +199,5 @@ public class ProductDaoImp implements ProductDao {
     @Override
     public void restoreVersion() throws CustomException {
 
-    }
-
-    // Delete Product by ID
-    private void deleteProductById() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter product ID to delete: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-        while (true) {
-            System.out.print("Do you want to delete this product? (y/n): ");
-            String choice = scanner.nextLine().trim();
-            if (Pattern.matches("[Yy]", choice)) {
-                try {
-                    int result = deleteProductById(id);
-                    if (result > 0) {
-                        System.out.println("Deleted product successfully.");
-                    } else {
-                        System.out.println("Delete failed or product not found.");
-                    }
-                } catch (CustomException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-                break;
-            } else if (Pattern.matches("[Nn]", choice)) {
-                return;
-            } else {
-                System.out.println("Invalid input. Please enter 'y' or 'n'.");
-            }
-        }
-    }
-
-    // Write Product
-    private void writeProduct(){
-        Scanner scan = new Scanner(System.in);
-        int productId=1;
-        System.out.print("Input product name: ");
-        String productName = scan.nextLine();
-
-        System.out.print("Input product price: ");
-        double unitPrice = scan.nextDouble();
-
-        System.out.print("Input quantity: ");
-        int quantity = scan.nextInt();
-
-        Date importDate = Date.valueOf(LocalDate.now());
-
-        Product product = new Product(productId,productName,unitPrice,quantity,importDate);
-        writeProduct(product);
-    }
-    // display Write Product
-    private void writeProduct(Product product){
-        System.out.println(product);
     }
 }
