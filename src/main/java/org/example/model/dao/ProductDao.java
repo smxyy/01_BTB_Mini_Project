@@ -2,11 +2,10 @@ package org.example.model.dao;
 
 import org.example.custom.exception.CustomException;
 import org.example.model.entity.Product;
-
-import java.util.List;
+import org.example.model.entity.ProductList;
 
 public interface ProductDao {
-    List<Product> queryAllProducts() throws CustomException;
+    ProductList queryAllProducts(int page) throws CustomException;
     int addNewProduct(Product product) throws CustomException;
     Product searchProductById(int id) throws CustomException;
     int updateProductById(int id) throws CustomException;

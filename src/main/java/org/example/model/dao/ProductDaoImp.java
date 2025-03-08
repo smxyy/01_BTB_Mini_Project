@@ -2,10 +2,11 @@ package org.example.model.dao;
 
 import org.example.custom.exception.CustomException;
 import org.example.model.entity.Product;
+import org.example.model.entity.ProductList;
 import org.example.utils.DatabaseConnectionManager;
 
 import java.sql.*;
-import java.util.List;
+import java.util.ArrayList;
 
 public class ProductDaoImp implements ProductDao {
     private DatabaseConnectionManager databaseConnectionManager;
@@ -15,8 +16,45 @@ public class ProductDaoImp implements ProductDao {
     }
 
     @Override
-    public List<Product> queryAllProducts() throws CustomException {
-        return List.of();
+    public ProductList queryAllProducts(int page) throws CustomException {
+        ArrayList<Product> product = new ArrayList<>();
+        int totalRow = 0, perPage = 5;
+        try {
+            Connection connection = databaseConnectionManager.getConnection();
+
+            String query = "SELECT * FROM stock_tb LIMIT ? OFFSET ?";
+            try {
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setInt(1, perPage);
+                statement.setInt(2, (page-1)*perPage);
+
+                ResultSet data = statement.executeQuery();
+                // Process the result set
+                while (data.next()) {
+                    int id = data.getInt(1);
+                    String name = data.getString(2);
+                    double price = data.getDouble(3);
+                    int qty = data.getInt(4);
+                    Date date = data.getDate(5);
+
+                    product.add(new Product(id, name, price, qty, date));
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+            String total = "SELECT COUNT(id) AS total FROM stock_tb";
+            try (PreparedStatement countStatement = connection.prepareStatement(total);
+                 ResultSet rows = countStatement.executeQuery()) {
+                if (rows.next()) {
+                    totalRow = rows.getInt("total");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return new ProductList(product, page, perPage, totalRow);
     }
 
     @Override
