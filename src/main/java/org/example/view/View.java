@@ -43,6 +43,8 @@ public class View {
                             case "s" -> {
                             }
                             case "se" -> {
+                                product.setRow();
+                                currentPage = 1;
                             }
                             case "sa" -> {
                             }

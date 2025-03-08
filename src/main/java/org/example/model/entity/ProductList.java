@@ -12,9 +12,9 @@ public class ProductList {
     public ProductList(ArrayList<Product> result, int page, int show, int total) {
         this.result = result;
         this.page = page;
-        this.show = show;
+        this.show = Math.min(show, total);
         this.total = total;
-        this.totalPage = Math.max(total / show, 1) + (total % show > 0 ? 1 : 0);
+        this.totalPage = Math.max(total / this.show, 1) + (total % this.show > 0 ? 1 : 0);
     }
 
     public ArrayList<Product> getResult() {

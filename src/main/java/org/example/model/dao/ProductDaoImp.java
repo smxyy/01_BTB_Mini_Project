@@ -6,6 +6,7 @@ import org.example.model.entity.ProductList;
 import org.example.utils.DatabaseConnectionManager;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
@@ -24,9 +25,9 @@ public class ProductDaoImp implements ProductDao {
     public ProductList queryAllProducts(int page) throws CustomException {
         ArrayList<Product> product = new ArrayList<>();
         int totalRow = 0, perPage;
-
-        try (FileInputStream file = new FileInputStream("src/main/resources/config.properties")) {
-            Properties properties = new Properties();
+        Properties properties = new Properties();
+        String propertiesPath = "src/main/resources/config.properties";
+        try (FileInputStream file = new FileInputStream(propertiesPath)) {
             properties.load(file);
             try {
                 perPage = Integer.parseInt(properties.getProperty("page.show"));
@@ -37,16 +38,17 @@ public class ProductDaoImp implements ProductDao {
             perPage = 5;
         }
 
+        Connection connection = null;
         try {
-            Connection connection = databaseConnectionManager.getConnection();
+            connection = databaseConnectionManager.getConnection();
 
-            String query = "SELECT * FROM stock_tb LIMIT ? OFFSET ?";
-            try {
-                PreparedStatement statement = connection.prepareStatement(query);
+            String query = "SELECT * FROM stock_tb ORDER BY id LIMIT ? OFFSET ?";
+            ResultSet data = null;
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setInt(1, perPage);
                 statement.setInt(2, (page-1)*perPage);
 
-                ResultSet data = statement.executeQuery();
+                data = statement.executeQuery();
                 // Process the result set
                 while (data.next()) {
                     int id = data.getInt(1);
@@ -59,6 +61,8 @@ public class ProductDaoImp implements ProductDao {
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
+            } finally {
+                if (data != null) data.close();
             }
 
             String total = "SELECT COUNT(id) AS total FROM stock_tb";
@@ -69,7 +73,13 @@ public class ProductDaoImp implements ProductDao {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new CustomException("Error: " + e.getMessage());
+        } finally {
+            try {
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                throw new CustomException("Error connection: " + e.getMessage());
+            }
         }
 
         return new ProductList(product, page, perPage, totalRow);
@@ -158,7 +168,21 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public void setRow(int number) {
+        Properties properties = new Properties();
+        String propertiesPath = "src/main/resources/config.properties";
+        try (FileInputStream input = new FileInputStream(propertiesPath)) {
+            properties.load(input);
+            properties.setProperty("page.show", number+"");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        // Save the updated properties back to the file
+        try (FileOutputStream output = new FileOutputStream(propertiesPath)) {
+            properties.store(output, "Updated properties file");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

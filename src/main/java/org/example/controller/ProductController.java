@@ -112,4 +112,23 @@ public class ProductController {
         }
         return pages;
     }
+
+    public void setRow() throws CustomException {
+        ProductDaoImp product = new ProductDaoImp();
+        while(true) {
+            try {
+                System.out.print(YELLOW.getCode() + "=> Set row: " + RESET.getCode());
+                int perPage = Integer.parseInt(new Scanner(System.in).nextLine());
+                if (perPage <= 100 && perPage > 0) {
+                    product.setRow(perPage);
+                    System.out.println(GREEN.getCode() + "Row have been set successfully!" + RESET.getCode());
+                    break;
+                } else {
+                    System.out.println(RED.getCode() + "Row must be between 1 and 100!" + RESET.getCode());
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(RED.getCode() + "Row is allowed only number!" + RESET.getCode());
+            }
+        }
+    }
 }
