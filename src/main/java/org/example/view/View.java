@@ -3,6 +3,7 @@ package org.example.view;
 import org.example.controller.ProductController;
 import org.example.custom.exception.CustomException;
 import org.example.model.entity.ProductList;
+import org.example.model.entity.ProductTempList;
 
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -17,6 +18,7 @@ public class View {
     void init () throws CustomException {
         Scanner scanner = new Scanner(System.in);
         ProductController product = new ProductController();
+        ProductTempList tempList = new ProductTempList();
 
         int currentPage = 1;
         while(true) {
@@ -39,7 +41,7 @@ public class View {
                             case "u" -> {
                             }
                             case "d" -> {
-                                product.deleteProductById();
+                                tempList.deleteProductById();
                             }
                             case "s" -> {
                             }
