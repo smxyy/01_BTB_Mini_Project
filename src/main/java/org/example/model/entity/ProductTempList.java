@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+import static org.example.config.Color.*;
+
 public class ProductTempList {
     static List<Product> writeProductList;
     static List<Product> updateProductList;
@@ -19,12 +21,21 @@ public class ProductTempList {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter product ID to delete: ");
         int id = scanner.nextInt();
-        productDao.deleteProductById(id);
         scanner.nextLine();
+        if (id <= 0) {
+            System.out.println("Invalid ID. Product ID must be greater than 0.");
+            return;
+        }
         while (true) {
             System.out.print("Do you want to delete this product? (y/n): ");
             String choice = scanner.nextLine().trim();
             if (Pattern.matches("[Yy]", choice)) {
+                int result = productDao.deleteProductById(id);
+                if (result >0) {
+                    System.out.println("Product deleted successfully.");
+                }else {
+                    System.out.println("⚠️ No product found with ID " + id + ".");
+                }
                 break;
             } else if (Pattern.matches("[Nn]", choice)) {
                 return;
