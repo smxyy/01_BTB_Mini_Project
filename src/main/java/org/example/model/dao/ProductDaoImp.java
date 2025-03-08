@@ -75,6 +75,7 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public int addNewProduct(Product product) throws CustomException {
+
         return 0;
     }
 
