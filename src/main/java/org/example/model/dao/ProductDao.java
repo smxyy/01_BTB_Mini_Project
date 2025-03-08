@@ -14,4 +14,5 @@ public interface ProductDao {
     void saveProductToDatabase() throws CustomException;
     void backUp() throws CustomException;
     void restoreVersion() throws CustomException;
+    int searchProductByName(String name) throws CustomException;
 }

@@ -45,6 +45,7 @@ public class View {
                                 tempList.deleteProductById();
                             }
                             case "s" -> {
+                                tempList.searchByName();
                             }
                             case "se" -> {
                                 product.setRow();
