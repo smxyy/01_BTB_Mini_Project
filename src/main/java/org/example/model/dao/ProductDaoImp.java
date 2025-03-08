@@ -5,7 +5,6 @@ import org.example.model.entity.Product;
 import org.example.model.entity.ProductList;
 import org.example.utils.DatabaseConnectionManager;
 import org.example.utils.Helper;
-
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
@@ -98,9 +97,9 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public int addNewProduct(Product product) throws CustomException {
-
         return 0;
     }
+
 
     @Override
     public Product searchProductById(int id) throws CustomException {
@@ -201,7 +200,6 @@ public class ProductDaoImp implements ProductDao {
         }
     }
 
-
     @Override
     public void setRow(int number) {
         Properties properties = new Properties();
@@ -296,7 +294,6 @@ public class ProductDaoImp implements ProductDao {
     }
 
     // Search by Name
-
     @Override
     public int searchProductByName(String name) throws CustomException {
             List<Product> productList = new ArrayList<>();

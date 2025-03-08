@@ -22,6 +22,15 @@ public class ProductTempList {
     static List<Product> updateProductList=new ArrayList<>();
     private int productId = 1;
 
+    // search By Name
+    public void searchByName() throws CustomException {
+        ProductDaoImp productDao = new ProductDaoImp();
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Input Product Name: ");
+        String name = sc.nextLine();
+        productDao.searchProductByName(name);
+    }
+
     // Delete Product by ID
     public void deleteProductById() throws CustomException {
         ProductDaoImp productDao = new ProductDaoImp();
