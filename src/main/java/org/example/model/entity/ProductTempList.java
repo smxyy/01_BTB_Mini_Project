@@ -5,6 +5,7 @@ import org.example.model.dao.ProductDaoImp;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -47,7 +48,8 @@ public class ProductTempList {
     // Write Product
     public void writeProduct() throws CustomException {
         Scanner scan = new Scanner(System.in);
-        int productId=1;
+        int productId=10;
+        productId++;
         System.out.print("Input product name: ");
         String productName = scan.nextLine();
 
@@ -60,6 +62,12 @@ public class ProductTempList {
         Date importDate = Date.valueOf(LocalDate.now());
 
         Product product = new Product(productId,productName,unitPrice,quantity,importDate);
+        if (writeProductList == null) {
+            writeProductList = new ArrayList<>();
+        }
+
         writeProductList.add(product);
+        System.out.println("✅ Product added successfully!");
+
     }
 }
