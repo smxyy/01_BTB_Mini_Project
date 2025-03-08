@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface ProductDao {
     ProductList queryAllProducts(int page) throws CustomException;
-    int addNewProduct(Product product) throws CustomException;
     Product searchProductById(int id) throws CustomException;
     int updateProductById(int id) throws CustomException;
     int deleteProductById(int id) throws CustomException;

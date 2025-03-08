@@ -195,7 +195,6 @@ public class ProductDaoImp implements ProductDao {
         }
     }
 
-
     @Override
     public void setRow(int number) {
         Properties properties = new Properties();
@@ -280,7 +279,6 @@ public class ProductDaoImp implements ProductDao {
     }
 
     // Search by Name
-
     @Override
     public int searchProductByName(String name) throws CustomException {
             List<Product> productList = new ArrayList<>();
