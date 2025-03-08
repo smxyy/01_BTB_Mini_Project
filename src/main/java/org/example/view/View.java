@@ -36,6 +36,7 @@ public class View {
                         switch (option) {
                             case "n", "p", "f", "l", "g" -> currentPage = product.showPagination(option, productList);
                             case "w" -> {
+                                tempList.writeProduct();
                             }
                             case "r" -> {
                             }
@@ -53,6 +54,7 @@ public class View {
                             case "sa" -> {
                             }
                             case "un" -> {
+                                product.unsavedController();
                             }
                             case "ba" -> {
                             }
@@ -100,4 +102,5 @@ public class View {
         System.out.print(GREEN.getCode() + "E)" + RESET.getCode() + " Exit\n");
         System.out.println(" ".repeat(25) + "_".repeat(57));
     }
+
 }

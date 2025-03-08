@@ -50,6 +50,19 @@ public class ProductDaoImp implements ProductDao {
         try {
             connection = databaseConnectionManager.getConnection();
 
+            String total = "SELECT COUNT(id) AS total FROM stock_tb";
+            try (PreparedStatement countStatement = connection.prepareStatement(total);
+                 ResultSet rows = countStatement.executeQuery()) {
+                if (rows.next()) {
+                    totalRow = rows.getInt("total");
+                }
+            }
+
+            if (totalRow > 0) {
+                int maxPage = (totalRow / perPage) + (totalRow % perPage > 0 ? 1 : 0);
+                page = Math.min(page, maxPage);
+            }
+
             String query = "SELECT * FROM stock_tb ORDER BY id LIMIT ? OFFSET ?";
             ResultSet data = null;
             try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -71,14 +84,6 @@ public class ProductDaoImp implements ProductDao {
                 throw new RuntimeException(e);
             } finally {
                 if (data != null) data.close();
-            }
-
-            String total = "SELECT COUNT(id) AS total FROM stock_tb";
-            try (PreparedStatement countStatement = connection.prepareStatement(total);
-                 ResultSet rows = countStatement.executeQuery()) {
-                if (rows.next()) {
-                    totalRow = rows.getInt("total");
-                }
             }
         } catch (SQLException e) {
             throw new CustomException("Error: " + e.getMessage());
