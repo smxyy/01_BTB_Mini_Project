@@ -5,6 +5,7 @@ import org.example.controller.BackupRestoreController;
 import org.example.controller.ProductController;
 import org.example.custom.exception.CustomException;
 import org.example.model.entity.ProductList;
+import org.example.utils.Helper;
 import org.example.model.entity.ProductTempList;
 import org.example.utils.Helper;
 import org.nocrala.tools.texttablefmt.BorderStyle;
@@ -46,7 +47,11 @@ public class View {
                         switch (option) {
                             case "n", "p", "f", "l", "g" -> currentPage = product.showPagination(option, productList);
                             case "w" -> {
+<<<<<<< HEAD
 
+=======
+                                tempList.writeProduct();
+>>>>>>> cedd8e999f37cbaba50a0d2daba1cf3d41ef91ff
                             }
                             case "r" -> {
 
@@ -57,6 +62,7 @@ public class View {
                                 tempList.deleteProductById();
                             }
                             case "s" -> {
+                                tempList.searchByName();
                             }
                             case "se" -> {
                                 product.setRow();
@@ -65,7 +71,11 @@ public class View {
                             case "sa" -> {
                             }
                             case "un" -> {
+<<<<<<< HEAD
 
+=======
+                                product.unsavedController();
+>>>>>>> cedd8e999f37cbaba50a0d2daba1cf3d41ef91ff
                             }
                             case "ba" -> {
                                 System.out.println("\n" + "=".repeat(35));
@@ -123,16 +133,16 @@ public class View {
                                 System.exit(0);
                             }
                             default -> {
-                                System.out.println(RED.getCode() + "This option doesn't have!" + RESET.getCode());
+                                Helper.printMessage("This option doesn't have!", 0);
                                 isOption = true;
                             }
                         }
                     } else {
-                        System.out.println(RED.getCode() + "Option is allowed only letter!" + RESET.getCode());
+                        Helper.printMessage("Option is allowed only letter!", 0);
                         isOption = true;
                     }
                 } else {
-                    System.out.println(RED.getCode() + "Option not allowed empty!" + RESET.getCode());
+                    Helper.printMessage("Option not allowed empty!", 0);
                     isOption = true;
                 }
             } while (isOption);
@@ -161,4 +171,9 @@ public class View {
         System.out.print(GREEN.getCode() + "E)" + RESET.getCode() + " Exit\n");
         System.out.println(" ".repeat(25) + "_".repeat(57));
     }
+<<<<<<< HEAD
 }
+=======
+
+}
+>>>>>>> cedd8e999f37cbaba50a0d2daba1cf3d41ef91ff

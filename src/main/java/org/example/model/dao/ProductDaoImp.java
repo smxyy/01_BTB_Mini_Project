@@ -4,23 +4,20 @@ import org.example.custom.exception.CustomException;
 import org.example.model.entity.Product;
 import org.example.model.entity.ProductList;
 import org.example.utils.DatabaseConnectionManager;
+import org.nocrala.tools.texttablefmt.BorderStyle;
+import org.nocrala.tools.texttablefmt.CellStyle;
+import org.nocrala.tools.texttablefmt.ShownBorders;
+import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Scanner;
-import java.util.regex.Pattern;
 
-import static org.example.config.Color.RED;
-import static org.example.config.Color.RESET;
-
-import static org.example.config.Color.RED;
-import static org.example.config.Color.RESET;
+import static org.example.config.Color.*;
 
 public class ProductDaoImp implements ProductDao {
     private DatabaseConnectionManager databaseConnectionManager;
@@ -50,6 +47,19 @@ public class ProductDaoImp implements ProductDao {
         try {
             connection = databaseConnectionManager.getConnection();
 
+            String total = "SELECT COUNT(id) AS total FROM stock_tb";
+            try (PreparedStatement countStatement = connection.prepareStatement(total);
+                 ResultSet rows = countStatement.executeQuery()) {
+                if (rows.next()) {
+                    totalRow = rows.getInt("total");
+                }
+            }
+
+            if (totalRow > 0) {
+                int maxPage = (totalRow / perPage) + (totalRow % perPage > 0 ? 1 : 0);
+                page = Math.min(page, maxPage);
+            }
+
             String query = "SELECT * FROM stock_tb ORDER BY id LIMIT ? OFFSET ?";
             ResultSet data = null;
             try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -71,14 +81,6 @@ public class ProductDaoImp implements ProductDao {
                 throw new RuntimeException(e);
             } finally {
                 if (data != null) data.close();
-            }
-
-            String total = "SELECT COUNT(id) AS total FROM stock_tb";
-            try (PreparedStatement countStatement = connection.prepareStatement(total);
-                 ResultSet rows = countStatement.executeQuery()) {
-                if (rows.next()) {
-                    totalRow = rows.getInt("total");
-                }
             }
         } catch (SQLException e) {
             throw new CustomException("Error: " + e.getMessage());
@@ -171,10 +173,11 @@ public class ProductDaoImp implements ProductDao {
         PreparedStatement preparedStatement = null;
 
         try {
-
             connection = new DatabaseConnectionManager().getConnection();
-
-            String sql = "DELETE FROM products WHERE id = ?";
+            String sql = """         
+               DELETE FROM "stock_tb"
+               WHERE id = ?
+           """;
 
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, id);
@@ -229,6 +232,61 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public void restoreVersion() throws CustomException {
+
+    }
+
+    // Search by Name
+
+    @Override
+    public int searchProductByName(String name) throws CustomException {
+            List<Product> productList = new ArrayList<>();
+            String sql = """
+            SELECT * FROM stock_tb
+            WHERE  LOWER(name)  LIKE LOWER(?)
+            """;
+            try (
+                    Connection connection = databaseConnectionManager.getConnection();
+                    PreparedStatement preparedStatement = connection.prepareStatement(sql)
+            ) {
+                preparedStatement.setString(1, "%" + name + "%");
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    while (resultSet.next()) {
+                        Product product = new Product();
+                        product.setId(resultSet.getInt("id"));
+                        product.setName(resultSet.getString("name"));
+                        product.setUnitPrice(resultSet.getDouble("unit_price"));
+                        product.setQuantity(resultSet.getInt("stock_qty"));
+                        product.setImpotedDate(resultSet.getDate("import_date"));
+                        productList.add(product);
+                    }
+                    if (productList.isEmpty()) {
+                        System.out.println(RED+"Product not found"+RESET);
+                    }
+                    Table table = new Table(5, BorderStyle.UNICODE_BOX, ShownBorders.ALL);
+                    String[] pColumnNames = {"Id", "Name", "Unit Price", "Qty", "Import Date"};
+
+                    for (String col : pColumnNames) {
+                        table.addCell(col, new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
+                    }
+                    for (int i = 0; i < 5; i++) {
+                        table.setColumnWidth(i, 25, 25);
+                    }
+                    for (Product product : productList) {
+
+                        table.addCell(String.valueOf(product.getId()), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
+                        table.addCell(product.getName(), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
+                        table.addCell(String.valueOf(product.getQuantity()), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
+                        table.addCell(String.valueOf(product.getUnitPrice()), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
+                        table.addCell(product.getImpotedDate().toString(), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
+                    }
+                    System.out.println(table.render());
+                    System.out.println("Press Enter to continue...");
+
+                }
+            } catch (SQLException sqlexception) {
+                System.out.println("Problem during get all products from database: " + sqlexception.getMessage());
+            }
+            return productList.size();
 
     }
 }

@@ -4,6 +4,8 @@ import org.example.custom.exception.CustomException;
 import org.example.model.dao.ProductDaoImp;
 import org.example.model.entity.Product;
 import org.example.model.entity.ProductList;
+import org.example.utils.Helper;
+import org.example.model.entity.ProductTempList;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
@@ -11,8 +13,6 @@ import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -40,7 +40,7 @@ public class ProductController {
 
         if (!products.getResult().isEmpty()) {
             for (Product product : products.getResult()) {
-                tbList.addCell(YELLOW.getCode() + product.getId() + RESET.getCode(), alignCenter);
+                tbList.addCell(GREEN.getCode() + product.getId() + RESET.getCode(), alignCenter);
                 tbList.addCell(BLUE.getCode() + product.getName() + RESET.getCode(), alignCenter);
                 tbList.addCell(YELLOW.getCode() + product.getUnitPrice() + RESET.getCode(), alignCenter);
                 tbList.addCell(YELLOW.getCode() + product.getQuantity() + RESET.getCode(), alignCenter);
@@ -50,8 +50,8 @@ public class ProductController {
             int page = products.getPage();
             int totalPage = products.getTotalPage();
             int totalRecord = products.getTotal();
-            tbList.addCell("Page: " + page + " of " + totalPage, alignCenter, 2);
-            tbList.addCell("Total Record: " + totalRecord, alignCenter, 3);
+            tbList.addCell("Page: " + GREEN.getCode() + page + RESET.getCode() + " of " + GREEN.getCode() + totalPage + RESET.getCode(), alignCenter, 2);
+            tbList.addCell("Total Record: " + GREEN.getCode() + totalRecord + RESET.getCode(), alignCenter, 3);
         } else {
             for (int i = 0; i < 5; i++)
                 tbList.addCell("---", alignCenter);
@@ -80,7 +80,7 @@ public class ProductController {
             perPage = 5;
         }
 
-        switch(option) {
+        switch (option) {
             case "n" -> {
                 if (productList.getTotal() - (perPage * pages) >= 1)
                     pages += 1;
@@ -97,18 +97,23 @@ public class ProductController {
                     pages = productList.getTotal() / perPage;
             }
             case "g" -> {
-                while(true) {
+                while (true) {
                     try {
                         System.out.print(YELLOW.getCode() + "=> Go to page: " + RESET.getCode());
-                        int gotoPage = Integer.parseInt(new Scanner(System.in).nextLine());
-                        if(gotoPage <= productList.getTotalPage()) {
-                            pages = gotoPage;
-                            break;
+                        String gotoPage = new Scanner(System.in).nextLine();
+                        if (!gotoPage.isBlank()) {
+                            int pageNum = Integer.parseInt(gotoPage);
+                            if (pageNum <= productList.getTotalPage()) {
+                                pages = pageNum;
+                                break;
+                            } else {
+                                Helper.printMessage("Page " + pageNum + " doesn't have!", 0);
+                            }
                         } else {
-                            System.out.println(RED.getCode() + "Page " + gotoPage + " doesn't have!" + RESET.getCode());
+                            Helper.printMessage("Page not allowed empty!", 0);
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println(RED.getCode() + "Page is allowed only number!" + RESET.getCode());
+                        Helper.printMessage("Page is allowed only number!", 0);
                     }
                 }
             }
@@ -119,19 +124,38 @@ public class ProductController {
 
     public void setRow() throws CustomException {
         ProductDaoImp product = new ProductDaoImp();
-        while(true) {
+        while (true) {
             try {
                 System.out.print(YELLOW.getCode() + "=> Set row: " + RESET.getCode());
-                int perPage = Integer.parseInt(new Scanner(System.in).nextLine());
-                if (perPage <= 100 && perPage > 0) {
-                    product.setRow(perPage);
-                    System.out.println(GREEN.getCode() + "Row have been set successfully!" + RESET.getCode());
-                    break;
+                String showPage = new Scanner(System.in).nextLine();
+                if (!showPage.isBlank()) {
+                    int perPage = Integer.parseInt(showPage);
+                    if (perPage <= 100 && perPage > 0) {
+                        product.setRow(perPage);
+                        Helper.printMessage("Row have been set successfully!", 1);
+                        break;
+                    } else {
+                        Helper.printMessage("Row must be between 1 and 100!", 0);
+                    }
                 } else {
-                    System.out.println(RED.getCode() + "Row must be between 1 and 100!" + RESET.getCode());
+                    Helper.printMessage("Row not allowed empty!", 0);
                 }
             } catch (NumberFormatException e) {
-                System.out.println(RED.getCode() + "Row is allowed only number!" + RESET.getCode());
+                Helper.printMessage("Row is allowed only number!", 0);
+            }
+        }
+    }
+
+    public void unsavedController() throws CustomException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Enter ui for view unsaved insert and uu for enter unsaved updated :");
+            String ch = scanner.nextLine();
+            if (Pattern.matches("[a-zA-Z]+", ch)) {
+                ProductTempList productTempList = new ProductTempList();
+                if(productTempList.unsavedProduct(ch))break;
+            } else {
+                System.out.println("Only input letter");
             }
         }
     }
