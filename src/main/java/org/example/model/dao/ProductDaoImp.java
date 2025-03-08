@@ -2,18 +2,16 @@ package org.example.model.dao;
 
 import org.example.custom.exception.CustomException;
 import org.example.model.entity.Product;
+import org.example.model.entity.ProductList;
 import org.example.utils.DatabaseConnectionManager;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Scanner;
-
-import static org.example.config.Color.RED;
-import static org.example.config.Color.RESET;
-
-import static org.example.config.Color.RED;
-import static org.example.config.Color.RESET;
 
 public class ProductDaoImp implements ProductDao {
     private DatabaseConnectionManager databaseConnectionManager;
@@ -23,8 +21,58 @@ public class ProductDaoImp implements ProductDao {
     }
 
     @Override
-    public List<Product> queryAllProducts() throws CustomException {
-        return List.of();
+    public ProductList queryAllProducts(int page) throws CustomException {
+        ArrayList<Product> product = new ArrayList<>();
+        int totalRow = 0, perPage;
+
+        try (FileInputStream file = new FileInputStream("src/main/resources/config.properties")) {
+            Properties properties = new Properties();
+            properties.load(file);
+            try {
+                perPage = Integer.parseInt(properties.getProperty("page.show"));
+            } catch (NumberFormatException e) {
+                perPage = 5;
+            }
+        } catch (IOException ioException) {
+            perPage = 5;
+        }
+
+        try {
+            Connection connection = databaseConnectionManager.getConnection();
+
+            String query = "SELECT * FROM stock_tb LIMIT ? OFFSET ?";
+            try {
+                PreparedStatement statement = connection.prepareStatement(query);
+                statement.setInt(1, perPage);
+                statement.setInt(2, (page-1)*perPage);
+
+                ResultSet data = statement.executeQuery();
+                // Process the result set
+                while (data.next()) {
+                    int id = data.getInt(1);
+                    String name = data.getString(2);
+                    double price = data.getDouble(3);
+                    int qty = data.getInt(4);
+                    Date date = data.getDate(5);
+
+                    product.add(new Product(id, name, price, qty, date));
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+            String total = "SELECT COUNT(id) AS total FROM stock_tb";
+            try (PreparedStatement countStatement = connection.prepareStatement(total);
+                 ResultSet rows = countStatement.executeQuery()) {
+                if (rows.next()) {
+                    totalRow = rows.getInt("total");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return new ProductList(product, page, perPage, totalRow);
     }
 
     @Override
@@ -87,11 +135,7 @@ public class ProductDaoImp implements ProductDao {
 
             // Execute the update and return the number of rows affected
             int rowsAffected = preparedStatement.executeUpdate();
-            if(rowsAffected > 0){
-                System.out.println("Deleted product successfully");
-            }else{
-                System.out.println(RED+"Delete fail or found product"+RESET);
-            }
+
             return rowsAffected; // Return the number of rows deleted
         } catch (SQLException sqlException) {
             // Handle SQL exceptions
@@ -119,7 +163,6 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public void saveProductToDatabase() throws CustomException {
-
 
     }
 
