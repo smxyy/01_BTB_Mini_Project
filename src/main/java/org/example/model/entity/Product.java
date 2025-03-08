@@ -1,6 +1,7 @@
 package org.example.model.entity;
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 public class Product {
     private int id;
