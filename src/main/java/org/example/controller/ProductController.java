@@ -117,10 +117,12 @@ public class ProductController {
     }
 
     // Delete Product by ID
-    public void deleteProductById(int id) throws CustomException {
+    public void deleteProductById() throws CustomException {
+        ProductDaoImp productDao = new ProductDaoImp();
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter product ID to delete: ");
-        int searchId = scanner.nextInt();
+        int id = scanner.nextInt();
+        productDao.deleteProductById(id);
         scanner.nextLine();
         while (true) {
             System.out.print("Do you want to delete this product? (y/n): ");
