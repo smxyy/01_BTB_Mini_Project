@@ -40,7 +40,7 @@ public class ProductController {
 
         if (!products.getResult().isEmpty()) {
             for (Product product : products.getResult()) {
-                tbList.addCell(YELLOW.getCode() + product.getId() + RESET.getCode(), alignCenter);
+                tbList.addCell(GREEN.getCode() + product.getId() + RESET.getCode(), alignCenter);
                 tbList.addCell(BLUE.getCode() + product.getName() + RESET.getCode(), alignCenter);
                 tbList.addCell(YELLOW.getCode() + product.getUnitPrice() + RESET.getCode(), alignCenter);
                 tbList.addCell(YELLOW.getCode() + product.getQuantity() + RESET.getCode(), alignCenter);
@@ -50,8 +50,8 @@ public class ProductController {
             int page = products.getPage();
             int totalPage = products.getTotalPage();
             int totalRecord = products.getTotal();
-            tbList.addCell("Page: " + page + " of " + totalPage, alignCenter, 2);
-            tbList.addCell("Total Record: " + totalRecord, alignCenter, 3);
+            tbList.addCell("Page: " + GREEN.getCode() + page + RESET.getCode() + " of " + GREEN.getCode() + totalPage + RESET.getCode(), alignCenter, 2);
+            tbList.addCell("Total Record: " + GREEN.getCode() + totalRecord + RESET.getCode(), alignCenter, 3);
         } else {
             for (int i = 0; i < 5; i++)
                 tbList.addCell("---", alignCenter);
@@ -116,49 +116,6 @@ public class ProductController {
         return pages;
     }
 
-    // Delete Product by ID
-    public void deleteProductById() throws CustomException {
-        ProductDaoImp productDao = new ProductDaoImp();
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter product ID to delete: ");
-        int id = scanner.nextInt();
-        productDao.deleteProductById(id);
-        scanner.nextLine();
-        while (true) {
-            System.out.print("Do you want to delete this product? (y/n): ");
-            String choice = scanner.nextLine().trim();
-            if (Pattern.matches("[Yy]", choice)) {
-                break;
-            } else if (Pattern.matches("[Nn]", choice)) {
-                return;
-            } else {
-                System.out.println("Invalid input. Please enter 'y' or 'n'.");
-            }
-        }
-    }
-
-    // Write Product
-    public void writeProduct() throws CustomException {
-        Scanner scan = new Scanner(System.in);
-        int productId=1;
-        System.out.print("Input product name: ");
-        String productName = scan.nextLine();
-
-        System.out.print("Input product price: ");
-        double unitPrice = scan.nextDouble();
-
-        System.out.print("Input quantity: ");
-        int quantity = scan.nextInt();
-
-        Date importDate = Date.valueOf(LocalDate.now());
-
-        Product product = new Product(productId,productName,unitPrice,quantity,importDate);
-        writeProduct(product);
-    }
-
-    public void writeProduct(Product product){
-        System.out.println(product);
-    }
 
     public void setRow() throws CustomException {
         ProductDaoImp product = new ProductDaoImp();
