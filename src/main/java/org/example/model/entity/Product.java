@@ -1,6 +1,7 @@
 package org.example.model.entity;
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 public class Product {
     private int id;
@@ -8,6 +9,7 @@ public class Product {
     private double unitPrice;
     private int quantity;
     private Date impotedDate;
+    public Product() {}
 
     public Product(int id, String name, double unitPrice, int quantity, Date impotedDate) {
         this.id = id;
