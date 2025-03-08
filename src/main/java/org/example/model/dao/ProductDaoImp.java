@@ -5,7 +5,12 @@ import org.example.model.entity.Product;
 import org.example.utils.DatabaseConnectionManager;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Scanner;
+
+import static org.example.config.Color.RED;
+import static org.example.config.Color.RESET;
 
 public class ProductDaoImp implements ProductDao {
     private DatabaseConnectionManager databaseConnectionManager;
@@ -21,6 +26,7 @@ public class ProductDaoImp implements ProductDao {
 
     @Override
     public int addNewProduct(Product product) throws CustomException {
+
         return 0;
     }
 
@@ -78,7 +84,11 @@ public class ProductDaoImp implements ProductDao {
 
             // Execute the update and return the number of rows affected
             int rowsAffected = preparedStatement.executeUpdate();
-
+            if(rowsAffected > 0){
+                System.out.println("Deleted product successfully");
+            }else{
+                System.out.println(RED+"Delete fail or found product"+RESET);
+            }
             return rowsAffected; // Return the number of rows deleted
         } catch (SQLException sqlException) {
             // Handle SQL exceptions
@@ -107,6 +117,7 @@ public class ProductDaoImp implements ProductDao {
     @Override
     public void saveProductToDatabase() throws CustomException {
 
+
     }
 
     @Override
@@ -117,5 +128,28 @@ public class ProductDaoImp implements ProductDao {
     @Override
     public void restoreVersion() throws CustomException {
 
+    }
+
+    // Write Product
+    private void writeProduct(){
+        Scanner scan = new Scanner(System.in);
+        int productId=1;
+        System.out.print("Input product name: ");
+        String productName = scan.nextLine();
+
+        System.out.print("Input product price: ");
+        double unitPrice = scan.nextDouble();
+
+        System.out.print("Input quantity: ");
+        int quantity = scan.nextInt();
+
+        Date importDate = Date.valueOf(LocalDate.now());
+
+        Product product = new Product(productId,productName,unitPrice,quantity,importDate);
+        writeProduct(product);
+    }
+    // display Write Product
+    private void writeProduct(Product product){
+        System.out.println(product);
     }
 }
