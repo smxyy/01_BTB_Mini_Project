@@ -1,6 +1,7 @@
 package org.example.model.service;
 
 import org.example.custom.exception.CustomException;
+import org.example.utils.Helper;
 
 import java.io.*;
 import java.util.*;
@@ -11,6 +12,21 @@ public class BackupRestoreService {
     private static final String BACKUP_FILE_PATH = "backup_files.properties";
 
     // Load backup files from properties file
+//    public void loadBackupFiles() {
+//        try (InputStream input = new FileInputStream(BACKUP_FILE_PATH)) {
+//            Properties properties = new Properties();
+//            properties.load(input);
+//            for (String key : properties.stringPropertyNames()) {
+//                int index = Integer.parseInt(key);
+//                String fileName = properties.getProperty(key);
+//                backupFiles.put(index, fileName);
+//            }
+//        } catch (IOException e) {
+//            // If the file doesn't exist or can't be loaded, we'll simply start with an empty map
+//            Helper.printMessage("Failed to load backup files: " + e.getMessage(), 0);
+//        }
+//    }
+
     public void loadBackupFiles() {
         try (InputStream input = new FileInputStream(BACKUP_FILE_PATH)) {
             Properties properties = new Properties();
@@ -21,10 +37,10 @@ public class BackupRestoreService {
                 backupFiles.put(index, fileName);
             }
         } catch (IOException e) {
-            // If the file doesn't exist or can't be loaded, we'll simply start with an empty map
-            System.err.println("Failed to load backup files: " + e.getMessage());
+            Helper.printMessage("Failed to load backup files: " + e.getMessage(), 0);
         }
     }
+
 
     // Save the backup files to the properties file
     public static void saveBackupFiles() {
@@ -55,6 +71,14 @@ public class BackupRestoreService {
     // Method to get the pgDumpPath from properties
     public static String getPgDumpPath(Properties properties) {
         return properties.getProperty("pgDumpPath");
+    }
+
+    public static String getPgRestorePath(Properties properties) {
+        return properties.getProperty("pgRestorePath");
+    }
+
+    public static String getPsqlPath(Properties properties) {
+        return properties.getProperty("psql");
     }
 
     // Method to get the database user from properties
@@ -134,31 +158,35 @@ public class BackupRestoreService {
         return backupFiles;
     }
 
-    // Restore the database from a backup file
-    public int restoreDatabase(String backupFilePath) throws CustomException{
+    public int restoreDatabase(String filePath) throws CustomException {
         Properties properties = loadProperties();  // Load all properties
+        String pgRestorePath = getPgRestorePath(properties);  // You can still use this, but for psql you'll need the path to psql
+        String psql = getPsqlPath(properties);
+        String dbUser = getDbUser(properties);
+        String dbHost = getDbHost(properties);
+        String dbPort = getDbPort(properties);
+        String dbName = getDbName(properties);
 
-        String pgRestorePath = getPgDumpPath(properties);
-        String dbUser = getDbUser(properties);  // Load db user
-        String dbHost = getDbHost(properties);  // Load db host
-        String dbPort = getDbPort(properties);  // Load db port
-        String dbName = getDbName(properties);  // Load db name
-
-        // Validate that all necessary properties are loaded
-        if (pgRestorePath == null || dbUser == null || dbHost == null || dbPort == null || dbName == null || backupFilePath == null) {
+        if (pgRestorePath == null || dbUser == null || dbHost == null || dbPort == null || dbName == null || filePath == null) {
             throw new CustomException("Missing required properties for restore operation.");
         }
 
-        // Construct the restore command
-        String command = String.format("%s -U %s -h %s -p %s -d %s -v %s",
-                pgRestorePath, dbUser, dbHost, dbPort, dbName, backupFilePath);
+        // Change the command to use psql instead of pg_restore
+        String command = String.format("%s -U %s -h %s -p %s -d %s -f %s", psql, dbUser, dbHost, dbPort, dbName, filePath);
 
         try {
+            System.out.println("Executing restore command: " + command);
+
             Process process = Runtime.getRuntime().exec(command);
+
             int exitCode = process.waitFor();
+
+            System.out.println("Restore process finished with exit code: " + exitCode);
             return exitCode;
-        } catch (IOException | InterruptedException e){
-            throw new CustomException(e.getMessage());
+
+        } catch (IOException | InterruptedException e) {
+            throw new CustomException("Restore failed: " + e.getMessage());
         }
     }
+
 }

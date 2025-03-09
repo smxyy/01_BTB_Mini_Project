@@ -32,6 +32,7 @@ public class ProductDaoImp implements ProductDao {
         int totalRow = 0, perPage;
         Properties properties = new Properties();
         String propertiesPath = "src/main/resources/config.properties";
+
         try (FileInputStream file = new FileInputStream(propertiesPath)) {
             properties.load(file);
             try {
@@ -47,6 +48,22 @@ public class ProductDaoImp implements ProductDao {
         try {
             connection = databaseConnectionManager.getConnection();
 
+            // Ensure the table exists by creating it if it doesn't exist
+            String createTableQuery = "CREATE TABLE IF NOT EXISTS stock_tb (" +
+                    "id serial PRIMARY KEY, " +
+                    "name varchar(100), " +
+                    "unit_price DECIMAL(10, 2) NOT NULL CHECK (unit_price >= 0), " +
+                    "stock_qty INTEGER NOT NULL CHECK (stock_qty >= 0), " +
+                    "import_date DATE NOT NULL DEFAULT CURRENT_DATE" +
+                    ");";
+
+            try (PreparedStatement createTableStatement = connection.prepareStatement(createTableQuery)) {
+                createTableStatement.executeUpdate(); // Create the table if it does not exist
+            } catch (SQLException e) {
+                throw new CustomException("Error creating table: " + e.getMessage());
+            }
+
+            // Count the total number of rows in the stock_tb table
             String total = "SELECT COUNT(id) AS total FROM stock_tb";
             try (PreparedStatement countStatement = connection.prepareStatement(total);
                  ResultSet rows = countStatement.executeQuery()) {
@@ -60,11 +77,12 @@ public class ProductDaoImp implements ProductDao {
                 page = Math.min(page, maxPage);
             }
 
+            // Query for the product data from the stock_tb table
             String query = "SELECT * FROM stock_tb ORDER BY id LIMIT ? OFFSET ?";
             ResultSet data = null;
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setInt(1, perPage);
-                statement.setInt(2, (page-1)*perPage);
+                statement.setInt(2, (page - 1) * perPage);
 
                 data = statement.executeQuery();
                 // Process the result set
@@ -95,11 +113,47 @@ public class ProductDaoImp implements ProductDao {
         return new ProductList(product, page, perPage, totalRow);
     }
 
+    @Override
+    public Product getProductById(int searchId) throws CustomException {
+        String query = "SELECT * FROM stock_tb WHERE id = ? LIMIT 1";
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet result = null;
+        Product product = new Product();
+        try {
+            connection = databaseConnectionManager.getConnection();
+            statement = connection.prepareStatement(query);
+            statement.setInt(1, searchId);
+            result = statement.executeQuery();
+            // Process the result set
+            while (result.next()) {
+                int id = result.getInt(1);
+                String name = result.getString(2);
+                double price = result.getDouble(3);
+                int qty = result.getInt(4);
+                Date date = result.getDate(5);
+
+                product = new Product(id, name, price, qty, date);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (connection != null) connection.close();
+                if (statement != null) statement.close();
+                if (result != null) result.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return product;
+    }
 
     @Override
-    public Product searchProductById(int id) throws CustomException {
+    public Product readProductById(int id) throws CustomException {
         String sql = """
-                SELECT * FROM products WHERE id = ?
+                SELECT * FROM stock_tb WHERE id = ? LIMIT 1
                 """;
 
         try (
@@ -110,11 +164,11 @@ public class ProductDaoImp implements ProductDao {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if(resultSet.next()){
-                int productId = resultSet.getInt("id");
-                String productName = resultSet.getString("name");
-                double unitPrice = resultSet.getDouble("unit_price");
-                int quantity = resultSet.getInt("quantity");
-                Date importedDate = resultSet.getDate("imported_date");
+                int productId = resultSet.getInt(1);
+                String productName = resultSet.getString(2);
+                double unitPrice = resultSet.getDouble(3);
+                int quantity = resultSet.getInt(4);
+                Date importedDate = resultSet.getDate(5);
 
                 return new Product(productId, productName, unitPrice, quantity, importedDate);
             }
@@ -123,42 +177,6 @@ public class ProductDaoImp implements ProductDao {
             throw new CustomException("Error searching for product: " + e.getMessage());
         }
         return null;
-    }
-
-    @Override
-    public int updateProductById(int id) throws CustomException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-
-            connection = databaseConnectionManager.getConnection();
-            String sql = "UPDATE products SET name = ?, unit_price = ?, quantity = ?, imported_date = ? WHERE id = ?";
-            preparedStatement = connection.prepareStatement(sql);
-            Product product = searchProductById(id);
-
-            preparedStatement.setString(1, product.getName());
-            preparedStatement.setDouble(2, product.getUnitPrice());
-            preparedStatement.setInt(3,product.getQuantity());
-            preparedStatement.setDate(4, product.getImpotedDate());
-            preparedStatement.setInt(5, id);
-
-            return preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new CustomException("Error updating product: " + e.getMessage());
-        } finally {
-            // Close resources
-            try {
-                if (preparedStatement != null) {
-                    preparedStatement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException sqlException) {
-                throw new CustomException("Error closing resources: " + sqlException.getMessage());
-            }
-        }
     }
 
     @Override
@@ -280,11 +298,11 @@ public class ProductDaoImp implements ProductDao {
 
     // Search by Name
     @Override
-    public int searchProductByName(String name) throws CustomException {
+    public List<Product> searchProductByName(String name) throws CustomException {
             List<Product> productList = new ArrayList<>();
             String sql = """
             SELECT * FROM stock_tb
-            WHERE  LOWER(name)  LIKE LOWER(?)
+            WHERE LOWER(name) LIKE LOWER(?)
             """;
             try (
                     Connection connection = databaseConnectionManager.getConnection();
@@ -301,34 +319,10 @@ public class ProductDaoImp implements ProductDao {
                         product.setImpotedDate(resultSet.getDate("import_date"));
                         productList.add(product);
                     }
-                    if (productList.isEmpty()) {
-                        System.out.println(RED+"Product not found"+RESET);
-                    }
-                    Table table = new Table(5, BorderStyle.UNICODE_BOX, ShownBorders.ALL);
-                    String[] pColumnNames = {"Id", "Name", "Unit Price", "Qty", "Import Date"};
-
-                    for (String col : pColumnNames) {
-                        table.addCell(col, new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
-                    }
-                    for (int i = 0; i < 5; i++) {
-                        table.setColumnWidth(i, 25, 25);
-                    }
-                    for (Product product : productList) {
-
-                        table.addCell(String.valueOf(product.getId()), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
-                        table.addCell(product.getName(), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
-                        table.addCell(String.valueOf(product.getQuantity()), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
-                        table.addCell(String.valueOf(product.getUnitPrice()), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
-                        table.addCell(product.getImpotedDate().toString(), new CellStyle(CellStyle.HorizontalAlign.CENTER), 1);
-                    }
-                    System.out.println(table.render());
-                    System.out.println("Press Enter to continue...");
-
                 }
             } catch (SQLException sqlexception) {
-                System.out.println("Problem during get all products from database: " + sqlexception.getMessage());
+                throw new CustomException(sqlexception.getMessage());
             }
-            return productList.size();
-
+            return productList;
     }
 }

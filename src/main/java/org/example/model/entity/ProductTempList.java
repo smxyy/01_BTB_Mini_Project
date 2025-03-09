@@ -2,6 +2,7 @@ package org.example.model.entity;
 
 import org.example.custom.exception.CustomException;
 import org.example.model.dao.ProductDaoImp;
+import org.example.utils.Helper;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
@@ -18,106 +19,8 @@ import static org.example.config.Color.*;
 
 public class ProductTempList {
     static List<Product> writeProductList = new ArrayList<>();
-    static List<Product> updateProductList=new ArrayList<>();
-
-    // search By Name
-    public void searchByName() throws CustomException {
-        ProductDaoImp productDao = new ProductDaoImp();
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Input Product Name: ");
-        String name = sc.nextLine();
-        productDao.searchProductByName(name);
-    }
-
-    private void showProductList(List<Product> productList) {
-        if (productList.isEmpty()) {
-            System.out.println("No products available.");
-            return;
-        }
-
-        CellStyle alignCenter = new CellStyle(CellStyle.HorizontalAlign.CENTER);
-        Table tbList = new Table(5, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
-        tbList.setColumnWidth(0, 10, 40);
-        tbList.setColumnWidth(1, 30, 70);
-        tbList.setColumnWidth(2, 15, 40);
-        tbList.setColumnWidth(3, 15, 40);
-        tbList.setColumnWidth(4, 20, 40);
-
-        tbList.addCell(CYAN.getCode() + "ID" + RESET.getCode(), alignCenter);
-        tbList.addCell(CYAN.getCode() + "Name" + RESET.getCode(), alignCenter);
-        tbList.addCell(CYAN.getCode() + "Unit Price" + RESET.getCode(), alignCenter);
-        tbList.addCell(CYAN.getCode() + "Qty" + RESET.getCode(), alignCenter);
-        tbList.addCell(CYAN.getCode() + "Import Date" + RESET.getCode(), alignCenter);
-
-        for (Product product : productList) {
-            tbList.addCell(YELLOW.getCode() + product.getId() + RESET.getCode(), alignCenter);
-            tbList.addCell(BLUE.getCode() + product.getName() + RESET.getCode(), alignCenter);
-            tbList.addCell(YELLOW.getCode() + product.getUnitPrice() + RESET.getCode(), alignCenter);
-            tbList.addCell(YELLOW.getCode() + product.getQuantity() + RESET.getCode(), alignCenter);
-            tbList.addCell(PURPLE.getCode() + product.getImpotedDate() + RESET.getCode(), alignCenter);
-        }
-
-        System.out.println(tbList.render());
-    }
-
-    // Update Product
-    public void updateTempProductById() throws CustomException {
-        Scanner scanner = new  Scanner(System.in);
-        System.out.print("Input ID to update: ");
-        String id = scanner.nextLine();
-        int conertID = Integer.parseInt(id);
-
-        Product productToUpdate = updateProductList.stream()
-                .filter(p -> p.getId() == conertID)
-                .findFirst().orElse(null);
-
-        if (productToUpdate != null) {
-            showProductList(updateProductList);
-            System.out.println("1. Name 2. Unit Price 3. Qty 4. All Fields 5. Exit");
-            System.out.print("Choose an option to update: ");
-            String choice = scanner.next();
-            scanner.nextLine();
-
-            switch (choice) {
-                case "1":
-                    System.out.print("Enter new name: ");
-                    String newName = scanner.nextLine();
-                    productToUpdate.setName(newName);
-                    break;
-                case "2":
-                    System.out.print("Enter new unit price: ");
-                    double newPrice = scanner.nextInt();
-                    productToUpdate.setUnitPrice(newPrice);
-                    break;
-                case "3":
-                    System.out.print("Enter new Qty: ");
-                    int newQty = scanner.nextInt();
-                    productToUpdate.setQuantity(newQty);
-                    break;
-                case "4":
-                    System.out.print("Enter new name: ");
-                    newName = scanner.nextLine();
-                    productToUpdate.setName(newName);
-
-                    System.out.print("Enter new unit price: ");
-                    newPrice = scanner.nextDouble();
-                    productToUpdate.setUnitPrice(newPrice);
-
-                    System.out.print("Enter new Qty: ");
-                    newQty = scanner.nextInt();
-                    productToUpdate.setQuantity(newQty);
-                    break;
-                case "5":
-                    System.out.println("Exiting update menu.");
-                    break;
-                default:
-                    System.out.println("Invalid option.");
-                    break;
-            }
-        } else {
-            System.out.println("Product with ID " + id + " not found.");
-        }
-    }
+    public static List<Product> updateProductList = new ArrayList<>();
+    private int productId = 1;
 
     // Delete Product by ID
     public void deleteProductById() throws CustomException {
@@ -136,7 +39,7 @@ public class ProductTempList {
             String choice = scanner.nextLine().trim();
             if (Pattern.matches("[Yy]", choice)) {
                 int result = productDao.deleteProductById(id);
-                if (result >0) {
+                if (result > 0) {
                     System.out.println("Product deleted successfully.");
                 }else {
                     System.out.println("⚠️ No product found with ID " + id + ".");
@@ -153,16 +56,56 @@ public class ProductTempList {
     // Write Product
     public void writeProduct() throws CustomException {
         Scanner scan = new Scanner(System.in);
-        int productId=10;
-        productId++;
-        System.out.print("Input product name: ");
-        String productName = scan.nextLine();
+        String productName = "";
+        double unitPrice = 0;
+        int quantity = 0;
 
-        System.out.print("Input product price: ");
-        double unitPrice = scan.nextDouble();
+        while(true) {
+            System.out.print("Input product name: ");
+            productName = scan.nextLine();
 
-        System.out.print("Input quantity: ");
-        int quantity = scan.nextInt();
+            if (!productName.isBlank()) {
+                if (Pattern.matches("^[a-zA-Z ]+$", productName)) {
+                    break;
+                } else {
+                    Helper.printMessage("Product name is allowed only letter!", 0);
+                }
+            } else {
+                Helper.printMessage("Product name not allowed empty!", 0);
+            }
+        }
+
+        while(true) {
+            System.out.print("Input product price: ");
+            String price = scan.nextLine();
+
+            if (!price.isBlank()) {
+                if (Pattern.matches("^[0-9]+$", price) || Pattern.matches("^([0-9]+).([0-9])+$", price)) {
+                    unitPrice = Double.parseDouble(price);
+                    break;
+                } else {
+                    Helper.printMessage("Product price is allowed only number!", 0);
+                }
+            } else {
+                Helper.printMessage("Product price not allowed empty!", 0);
+            }
+        }
+
+        while(true) {
+            System.out.print("Input quantity: ");
+            String qty = scan.nextLine();
+
+            if (!qty.isBlank()) {
+                if (Pattern.matches("^[0-9]+$", qty)) {
+                    quantity = Integer.parseInt(qty);
+                    break;
+                } else {
+                    Helper.printMessage("Product quantity is allowed only number!", 0);
+                }
+            } else {
+                Helper.printMessage("Product quantity not allowed empty!", 0);
+            }
+        }
 
         Date importDate = Date.valueOf(LocalDate.now());
 
@@ -172,11 +115,37 @@ public class ProductTempList {
         }
 
         writeProductList.add(product);
-        System.out.println("✅ Product added successfully!");
+        productId++;
+        Helper.printMessage("Product added successfully!", 1);
+    }
+
+    public void saveProduct(String option) throws CustomException {
+        ProductDaoImp productDao = new ProductDaoImp();
+
+        switch (option) {
+            case "ui" -> {
+                if (!writeProductList.isEmpty()) {
+                    productDao.saveProductToDatabase(writeProductList, "insert");
+                    writeProductList.clear();
+                } else {
+                    Helper.printMessage("There is no product for insert!", 0);
+                    Helper.displayEmptyTable();
+                }
+            }
+            case "uu" -> {
+                if (!updateProductList.isEmpty()) {
+                    productDao.saveProductToDatabase(updateProductList, "update");
+                    updateProductList.clear();
+                } else {
+                    Helper.printMessage("There is no product for update!", 0);
+                }
+            }
+        }
     }
 
     public boolean unsavedProduct(String ch) {
-        switch (ch) {
+        Scanner scanner = new Scanner(System.in);
+        switch (ch.toLowerCase()) {
             case "ui" -> {
                 CellStyle alignCenter = new CellStyle(CellStyle.HorizontalAlign.CENTER);
                 Table tbUnsaved = new Table(5, BorderStyle.UNICODE_ROUND_BOX_WIDE, ShownBorders.ALL);
@@ -192,14 +161,16 @@ public class ProductTempList {
                 tbUnsaved.addCell(CYAN.getCode() + "Import Date" + RESET.getCode(), alignCenter);
                 if (!writeProductList.isEmpty()) {
                     writeProductList.forEach(ui -> {
-                        tbUnsaved.addCell(String.valueOf(ui.getId()));
-                        tbUnsaved.addCell(ui.getName());
-                        tbUnsaved.addCell(String.valueOf(ui.getUnitPrice()));
-                        tbUnsaved.addCell(String.valueOf(ui.getQuantity()));
-                        tbUnsaved.addCell(String.valueOf(ui.getImpotedDate()));
+                        tbUnsaved.addCell(GREEN.getCode() + ui.getId() + RESET.getCode(), alignCenter);
+                        tbUnsaved.addCell(BLUE.getCode() + ui.getName() + RESET.getCode(), alignCenter);
+                        tbUnsaved.addCell(YELLOW.getCode() + ui.getUnitPrice() + RESET.getCode(), alignCenter);
+                        tbUnsaved.addCell(YELLOW.getCode() + ui.getQuantity() + RESET.getCode(), alignCenter);
+                        tbUnsaved.addCell(PURPLE.getCode() + ui.getImpotedDate() + RESET.getCode(), alignCenter);
                     });
                 }
                 System.out.println(tbUnsaved.render());
+                System.out.print(YELLOW.getCode() + "Press ENTER to continue..." + RESET.getCode());
+                new Scanner(System.in).nextLine();
                 return true;
             }
             case "uu"-> {
@@ -218,24 +189,28 @@ public class ProductTempList {
                 tbUnSavedUpdate.addCell(CYAN.getCode() + "Import Date" + RESET.getCode(), alignCenter);
                 if (!updateProductList.isEmpty()) {
                     updateProductList.forEach(uu -> {
-                        tbUnSavedUpdate.addCell(String.valueOf(uu.getId()));
-                        tbUnSavedUpdate.addCell(uu.getName());
-                        tbUnSavedUpdate.addCell(String.valueOf(uu.getUnitPrice()));
-                        tbUnSavedUpdate.addCell(String.valueOf(uu.getQuantity()));
-                        tbUnSavedUpdate.addCell(String.valueOf(uu.getImpotedDate()));
+                        tbUnSavedUpdate.addCell(GREEN.getCode() + uu.getId() + RESET.getCode(), alignCenter);
+                        tbUnSavedUpdate.addCell(BLUE.getCode() + uu.getName() + RESET.getCode(), alignCenter);
+                        tbUnSavedUpdate.addCell(YELLOW.getCode() + uu.getUnitPrice() + RESET.getCode(), alignCenter);
+                        tbUnSavedUpdate.addCell(YELLOW.getCode() + uu.getQuantity() + RESET.getCode(), alignCenter);
+                        tbUnSavedUpdate.addCell(PURPLE.getCode() + uu.getImpotedDate() + RESET.getCode(), alignCenter);
                     });
                 }
                 System.out.println(tbUnSavedUpdate.render());
+                System.out.print(YELLOW.getCode() + "Press ENTER to continue..." + RESET.getCode());
+                new Scanner(System.in).nextLine();
                 return true;
 
             }
+            case "b" -> {
+                return true;
+            }
             default -> {
-                System.out.println("Don't have this case");
+                Helper.printMessage("This option doesn't have!", 0);
                 return false;
             }
         }
 
     }
-
 }
 

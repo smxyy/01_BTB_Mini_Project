@@ -11,7 +11,7 @@ import java.util.Properties;
 
 public class DatabaseConnectionManager {
     private String url;
-    public static String user;
+    private String user;
     private String password;
 
     public DatabaseConnectionManager() throws CustomException {
@@ -20,7 +20,7 @@ public class DatabaseConnectionManager {
             properties.load(file);
 
             this.url = properties.getProperty("db.url");
-            user = properties.getProperty("db.user");
+            this.user = properties.getProperty("db.user");
             this.password = properties.getProperty("db.password");
 
             if (url == null || user == null || password == null) {

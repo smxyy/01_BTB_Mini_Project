@@ -5,7 +5,7 @@
 -- Dumped from database version 14.16 (Homebrew)
 -- Dumped by pg_dump version 14.16 (Homebrew)
 
--- Started on 2025-03-08 23:41:23 +07
+-- Started on 2025-03-09 08:13:23 +07
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -139,15 +139,14 @@ COPY public.products (id, name, unit_price, quantity, imported_date) FROM stdin;
 --
 
 COPY public.stock_tb (id, name, unit_price, stock_qty, import_date) FROM stdin;
-1	Apple iPhone 14	799.99	150	2025-03-08
-3	Sony WH-1000XM5 Headphones	349.99	80	2025-03-08
-4	Dell XPS 13 Laptop	1199.99	50	2025-03-08
-5	Nike Air Max 270	129.99	120	2025-03-08
 6	Logitech MX Master 3 Mouse	99.99	180	2025-03-08
 7	GoPro HERO11 Black	499.99	60	2025-03-08
 8	Microsoft Surface Pro 9	1299.99	40	2025-03-08
-9	Canon EOS R5 Camera	3899.99	30	2025-03-08
 10	Bose QuietComfort 45 Headphones	329.99	90	2025-03-08
+11	Coca Cola	1.25	5	2025-03-09
+5	Nike Air Force	20.00	5	2025-03-08
+1	Apple iPhone 14	1000.00	150	2025-03-08
+9	Canon EOS R6 Camera	3899.99	30	2025-03-08
 \.
 
 
@@ -166,7 +165,7 @@ SELECT pg_catalog.setval('public.products_id_seq', 1, false);
 -- Name: stock_tb_id_seq; Type: SEQUENCE SET; Schema: public; Owner: visal
 --
 
-SELECT pg_catalog.setval('public.stock_tb_id_seq', 10, true);
+SELECT pg_catalog.setval('public.stock_tb_id_seq', 11, true);
 
 
 --
@@ -187,7 +186,7 @@ ALTER TABLE ONLY public.stock_tb
     ADD CONSTRAINT stock_tb_pkey PRIMARY KEY (id);
 
 
--- Completed on 2025-03-08 23:41:23 +07
+-- Completed on 2025-03-09 08:13:23 +07
 
 --
 -- PostgreSQL database dump complete
