@@ -11,6 +11,8 @@ import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.ShownBorders;
 import org.nocrala.tools.texttablefmt.Table;
+
+import java.io.File;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -110,7 +112,15 @@ public class View {
                                         "The backup version that you input, doesn't exist!");
                                 for (Map.Entry<Integer, String> entry : backupFiles.entrySet()) {
                                     if (choice == entry.getKey()){
-                                        int result = backupRestoreController.handleRestore(entry.getValue());
+                                        String backupFilePath = entry.getValue();
+                                        File file = new File(backupFilePath);
+                                        if (!file.exists()) {
+                                            System.out.println("Backup file not found: " + backupFilePath);
+                                        } else {
+                                            System.out.println("Found backup file: " + backupFilePath);
+                                        }
+
+                                        int result = backupRestoreController.handleRestore(backupFilePath);
                                         if (result == 0){
                                             Helper.printMessage("Database restore successfully!", 1);
                                         } else {
